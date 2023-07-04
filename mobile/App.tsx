@@ -1,16 +1,15 @@
 import { StatusBar, Text } from 'react-native'
 import { NativeBaseProvider } from 'native-base'
+import { Loading } from '@components/Loading'
 
 export default function App() {
   return (
     <NativeBaseProvider>
       <StatusBar
-        barStyle="light-content"
+        barStyle="dark-content"
         backgroundColor="transparent"
         translucent
       />
-
-      <Text>Open up App.tsx to start working on your app!</Text>
     </NativeBaseProvider>
   )
 }
