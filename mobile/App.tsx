@@ -1,6 +1,8 @@
 import { StatusBar } from 'react-native'
 import { NativeBaseProvider } from 'native-base'
 
+import { THEME } from '@theme/index'
+
 import {
   Karla_400Regular,
   Karla_700Bold,
@@ -16,7 +18,7 @@ export default function App() {
   })
 
   return (
-    <NativeBaseProvider>
+    <NativeBaseProvider theme={THEME}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor="transparent"
