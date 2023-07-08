@@ -2,12 +2,16 @@ import {
   Button as ButtonNativeBase,
   IButtonProps,
   Text,
-  HStack,
-  Center,
   useTheme
 } from 'native-base'
 
-import { WhatsappLogo } from 'phosphor-react-native'
+import {
+  WhatsappLogo,
+  Power,
+  TrashSimple,
+  ArrowLeft,
+  Tag
+} from 'phosphor-react-native'
 
 const TYPE_COLOR = {
   black: 'gray.100',
@@ -24,10 +28,16 @@ const TYPE_COLOR_PRESSED = {
 interface ButtonProps {
   title: string
   typeColor: keyof typeof TYPE_COLOR
+  typeIcon?: 'whatsapp' | 'power' | 'trash' | 'arrowLeft' | 'tag'
   buttonProps?: IButtonProps
 }
 
-export function Button({ title, typeColor, buttonProps }: ButtonProps) {
+export function Button({
+  title,
+  typeColor,
+  typeIcon,
+  buttonProps
+}: ButtonProps) {
   const { colors } = useTheme()
 
   return (
@@ -42,11 +52,40 @@ export function Button({ title, typeColor, buttonProps }: ButtonProps) {
         bg: TYPE_COLOR_PRESSED[typeColor]
       }}
       leftIcon={
-        <WhatsappLogo
-          weight="fill"
-          size={16}
-          color={typeColor === 'gray' ? colors.gray[300] : colors.gray[600]}
-        />
+        typeIcon ? (
+          (() => {
+            const colorIcon =
+              typeColor === 'gray' ? colors.gray[300] : colors.gray[600]
+
+            switch (typeIcon) {
+              case 'whatsapp':
+                return (
+                  <WhatsappLogo weight="fill" size={16} color={colorIcon} />
+                )
+
+              case 'power':
+                return <Power weight="regular" size={16} color={colorIcon} />
+
+              case 'trash':
+                return (
+                  <TrashSimple weight="regular" size={16} color={colorIcon} />
+                )
+
+              case 'arrowLeft':
+                return (
+                  <ArrowLeft weight="regular" size={16} color={colorIcon} />
+                )
+
+              case 'tag':
+                return <Tag weight="regular" size={16} color={colorIcon} />
+
+              default:
+                return <></>
+            }
+          })()
+        ) : (
+          <></>
+        )
       }
       {...buttonProps}
     >
