@@ -2,7 +2,7 @@ import { Platform } from 'react-native'
 import { VStack, Text, ScrollView, KeyboardAvoidingView } from 'native-base'
 
 import { useNavigation } from '@react-navigation/native'
-import { AuthNavigationRoutesProp } from '@routes/auth.router'
+import { AuthNavigationRoutesProp } from '@routes/auth.routes'
 
 import LogoSvg from '@assets/logo.svg'
 import MarketSpaceSvg from '@assets/marketspace.svg'
