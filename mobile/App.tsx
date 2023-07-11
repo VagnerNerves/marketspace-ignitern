@@ -10,6 +10,7 @@ import {
 } from '@expo-google-fonts/karla'
 
 import { Loading } from '@components/Loading'
+import { Routes } from '@routes/index'
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -25,7 +26,7 @@ export default function App() {
         translucent
       />
 
-      {fontsLoaded ? <Loading /> : <Loading />}
+      {fontsLoaded ? <Routes /> : <Loading />}
     </NativeBaseProvider>
   )
 }
