@@ -10,6 +10,9 @@ import {
   useTheme
 } from 'native-base'
 
+import { useNavigation } from '@react-navigation/native'
+import { AuthNavigationRoutesProp } from '@routes/auth.router'
+
 import LogoSvg from '@assets/logo.svg'
 
 import { Input } from '@components/Input'
@@ -18,6 +21,12 @@ import { UserPhoto } from '@components/UserPhoto'
 
 export function SignUp() {
   const { colors } = useTheme()
+
+  const navigation = useNavigation<AuthNavigationRoutesProp>()
+
+  function handleGoBack() {
+    navigation.goBack()
+  }
 
   return (
     <KeyboardAvoidingView
@@ -95,7 +104,11 @@ export function SignUp() {
               Já tem uma conta?
             </Text>
 
-            <Button title="Ir para o login" typeColor="gray" />
+            <Button
+              title="Ir para o login"
+              typeColor="gray"
+              buttonProps={{ onPress: handleGoBack }}
+            />
           </VStack>
         </VStack>
       </ScrollView>
