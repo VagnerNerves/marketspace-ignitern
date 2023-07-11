@@ -1,6 +1,9 @@
 import { Platform } from 'react-native'
 import { VStack, Text, ScrollView, KeyboardAvoidingView } from 'native-base'
 
+import { useNavigation } from '@react-navigation/native'
+import { AuthNavigationRoutesProp } from '@routes/auth.router'
+
 import LogoSvg from '@assets/logo.svg'
 import MarketSpaceSvg from '@assets/marketspace.svg'
 
@@ -8,6 +11,12 @@ import { Input } from '@components/Input'
 import { Button } from '@components/Button'
 
 export function SignIn() {
+  const navigation = useNavigation<AuthNavigationRoutesProp>()
+
+  function handleNewAccount() {
+    navigation.navigate('singUp')
+  }
+
   return (
     <KeyboardAvoidingView
       flex={1}
@@ -62,7 +71,11 @@ export function SignIn() {
               Ainda não tem acesso?
             </Text>
 
-            <Button title="Criar uma conta" typeColor="gray" />
+            <Button
+              title="Criar uma conta"
+              typeColor="gray"
+              buttonProps={{ onPress: handleNewAccount }}
+            />
           </VStack>
         </VStack>
       </ScrollView>
