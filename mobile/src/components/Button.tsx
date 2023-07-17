@@ -10,7 +10,8 @@ import {
   Power,
   TrashSimple,
   ArrowLeft,
-  Tag
+  Tag,
+  Plus
 } from 'phosphor-react-native'
 
 const TYPE_COLOR = {
@@ -28,7 +29,7 @@ const TYPE_COLOR_PRESSED = {
 interface ButtonProps {
   title: string
   typeColor: keyof typeof TYPE_COLOR
-  typeIcon?: 'whatsapp' | 'power' | 'trash' | 'arrowLeft' | 'tag'
+  typeIcon?: 'whatsapp' | 'power' | 'trash' | 'arrowLeft' | 'tag' | 'plus'
   buttonProps?: IButtonProps
 }
 
@@ -78,6 +79,9 @@ export function Button({
 
               case 'tag':
                 return <Tag weight="regular" size={16} color={colorIcon} />
+
+              case 'plus':
+                return <Plus weight="regular" size={16} color={colorIcon} />
 
               default:
                 return <></>
