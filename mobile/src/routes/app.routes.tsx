@@ -54,7 +54,8 @@ export function AppRoutes() {
               size={24}
               color={color}
             />
-          )
+          ),
+          tabBarHideOnKeyboard: true
         }}
       />
       <Screen
