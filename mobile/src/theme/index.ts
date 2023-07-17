@@ -3,6 +3,7 @@ import { extendTheme } from 'native-base'
 export const THEME = extendTheme({
   colors: {
     blue: {
+      '100': '#E0E1EB',
       '400': '#647AC7',
       '700': '#364D9D'
     },
