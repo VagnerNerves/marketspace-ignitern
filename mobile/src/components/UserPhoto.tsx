@@ -4,11 +4,17 @@ import { Image, VStack, useTheme } from 'native-base'
 
 interface UserPhotoProps {
   size: number
+  borderWidth: 1 | 2 | 3
   borderColor?: 'blue' | 'gray'
   url?: string
 }
 
-export function UserPhoto({ size, borderColor = 'blue', url }: UserPhotoProps) {
+export function UserPhoto({
+  size,
+  borderWidth,
+  borderColor = 'blue',
+  url
+}: UserPhotoProps) {
   const { colors } = useTheme()
 
   return (
@@ -17,7 +23,7 @@ export function UserPhoto({ size, borderColor = 'blue', url }: UserPhotoProps) {
       w={size}
       h={size}
       rounded="full"
-      borderWidth={3}
+      borderWidth={borderWidth}
       borderColor={borderColor === 'blue' ? 'blue.400' : 'gray.700'}
       alignItems="center"
       justifyContent="center"
@@ -33,7 +39,7 @@ export function UserPhoto({ size, borderColor = 'blue', url }: UserPhotoProps) {
           resizeMode="cover"
         />
       ) : (
-        <User weight="bold" size={48} color={colors.gray[400]} />
+        <User weight="bold" size={size / 2} color={colors.gray[400]} />
       )}
     </VStack>
   )

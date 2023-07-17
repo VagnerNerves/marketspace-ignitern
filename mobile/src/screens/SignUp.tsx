@@ -64,6 +64,7 @@ export function SignUp() {
               <VStack width={88}>
                 <UserPhoto
                   size={88}
+                  borderWidth={3}
                   url="https://github.com/VagnerNerves.png"
                 />
                 <TouchableOpacity
