@@ -1,22 +1,33 @@
-import { useState } from 'react'
-import {
-  Switch as SwitchReactNative,
-  SwitchProps as SwitchPropsReactNative
-} from 'react-native'
+import { TouchableOpacity } from 'react-native'
 
-import { HStack, useTheme } from 'native-base'
+import { HStack, VStack } from 'native-base'
 
-interface SwitchProps extends SwitchPropsReactNative {}
-export function Switch({ ...rest }: SwitchProps) {
-  const { colors } = useTheme()
-
+interface SwitchProps {
+  value: boolean
+  onValueChange: () => void
+}
+export function Switch({ value, onValueChange }: SwitchProps) {
   return (
     <HStack>
-      <SwitchReactNative
-        trackColor={{ false: colors.gray[500], true: colors.blue[400] }}
-        thumbColor={colors.gray[700]}
-        {...rest}
-      />
+      <TouchableOpacity onPress={onValueChange}>
+        <HStack
+          width="50px"
+          height={7}
+          rounded="full"
+          backgroundColor={value ? 'blue.400' : 'gray.500'}
+          alignItems="center"
+        >
+          <VStack
+            width={6}
+            height={6}
+            backgroundColor="white"
+            rounded="full"
+            position="absolute"
+            left={value ? {} : '2px'}
+            right={value ? '2px' : {}}
+          />
+        </HStack>
+      </TouchableOpacity>
     </HStack>
   )
 }
