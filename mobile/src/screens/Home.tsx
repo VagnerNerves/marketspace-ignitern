@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { FlatList, HStack, Text, VStack } from 'native-base'
+
+import { Modalize } from 'react-native-modalize'
 
 import { Button } from '@components/Button'
 import { UserPhoto } from '@components/UserPhoto'
 import { CardInfoAdvertisements } from '@components/CardInfoAdvertisements'
 import { InputSearchAdvertisements } from '@components/InputSearchAdvertisements'
 import { CardAdvertisements } from '@components/CardAdvertisements'
+import { ModalFilterAdvertisements } from '@components/ModalFilterAdvertisements'
 
 export function Home() {
   const [advertisement, setAdvertisement] = useState([
@@ -16,6 +19,12 @@ export function Home() {
     '5',
     '6'
   ])
+
+  const modalizeRef = useRef<Modalize>(null)
+
+  function handleOpenModal() {
+    modalizeRef.current?.open()
+  }
 
   return (
     <VStack flex={1} paddingTop={16} px={6}>
@@ -64,7 +73,8 @@ export function Home() {
       <VStack space={3} marginBottom={6}>
         <Text>Compre produtos variados</Text>
 
-        <InputSearchAdvertisements />
+        <InputSearchAdvertisements openModalFilter={handleOpenModal} />
+        <ModalFilterAdvertisements modalizeRef={modalizeRef} />
       </VStack>
 
       <FlatList
