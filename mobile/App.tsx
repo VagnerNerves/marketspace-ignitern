@@ -1,5 +1,8 @@
+import 'react-native-gesture-handler'
+
 import { StatusBar } from 'react-native'
 import { NativeBaseProvider } from 'native-base'
+import { Host } from 'react-native-portalize'
 
 import { THEME } from '@theme/index'
 
@@ -11,6 +14,7 @@ import {
 
 import { Loading } from '@components/Loading'
 import { Routes } from '@routes/index'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -26,7 +30,9 @@ export default function App() {
         translucent
       />
 
-      {fontsLoaded ? <Routes /> : <Loading />}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Host>{fontsLoaded ? <Routes /> : <Loading />}</Host>
+      </GestureHandlerRootView>
     </NativeBaseProvider>
   )
 }
