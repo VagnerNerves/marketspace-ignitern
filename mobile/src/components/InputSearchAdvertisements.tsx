@@ -8,7 +8,13 @@ import {
   useTheme
 } from 'native-base'
 
-export function InputSearchAdvertisements() {
+interface InputSearchAdvertisementsProps {
+  openModalFilter: () => void
+}
+
+export function InputSearchAdvertisements({
+  openModalFilter
+}: InputSearchAdvertisementsProps) {
   const { colors } = useTheme()
 
   return (
@@ -35,7 +41,7 @@ export function InputSearchAdvertisements() {
             <MagnifyingGlass weight="bold" size={20} color={colors.gray[200]} />
           </TouchableOpacity>
           <Divider bg="gray.400" w="1px" h="18px" orientation="vertical" />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openModalFilter}>
             <Sliders weight="bold" size={20} color={colors.gray[200]} />
           </TouchableOpacity>
         </HStack>
