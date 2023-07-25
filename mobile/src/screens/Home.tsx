@@ -3,6 +3,9 @@ import { FlatList, HStack, Text, VStack } from 'native-base'
 
 import { Modalize } from 'react-native-modalize'
 
+import { useNavigation } from '@react-navigation/native'
+import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
+
 import { Button } from '@components/Button'
 import { UserPhoto } from '@components/UserPhoto'
 import { CardInfoAdvertisements } from '@components/CardInfoAdvertisements'
@@ -21,6 +24,7 @@ export function Home() {
   ])
 
   const modalizeRef = useRef<Modalize>(null)
+  const navigationStack = useNavigation<AppStackNavigatorRoutesProps>()
 
   function handleOpenModal() {
     modalizeRef.current?.open()
@@ -80,7 +84,11 @@ export function Home() {
       <FlatList
         data={advertisement}
         keyExtractor={item => item}
-        renderItem={({ item }) => <CardAdvertisements />}
+        renderItem={({ item }) => (
+          <CardAdvertisements
+            onNavigate={() => navigationStack.navigate('detailsAdvertisement')}
+          />
+        )}
         numColumns={2}
         columnWrapperStyle={{
           gap: 20,

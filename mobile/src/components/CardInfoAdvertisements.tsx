@@ -1,7 +1,7 @@
 import { TouchableOpacity } from 'react-native'
 
 import { useNavigation } from '@react-navigation/native'
-import { AppNavigatorRoutesProps } from '@routes/app.routes'
+import { AppBottomNavigatorRoutesProps } from '@routes/app.routes'
 
 import { Tag, ArrowRight } from 'phosphor-react-native'
 
@@ -16,10 +16,10 @@ export function CardInfoAdvertisements({
 }: CardInfoAdvertisementsProps) {
   const { colors } = useTheme()
 
-  const navigation = useNavigation<AppNavigatorRoutesProps>()
+  const navigationBottom = useNavigation<AppBottomNavigatorRoutesProps>()
 
   function handleScreenMyAdvertisements() {
-    navigation.navigate('myAdvertisements')
+    navigationBottom.navigate('myAdvertisements')
   }
 
   return (

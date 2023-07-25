@@ -1,12 +1,6 @@
-import { Platform } from 'react-native'
-import {
-  createBottomTabNavigator,
-  BottomTabNavigationProp
-} from '@react-navigation/bottom-tabs'
+import { useTheme } from 'native-base'
 
 import { House, Tag, SignOut as SignOutPhosphor } from 'phosphor-react-native'
-
-import { useTheme } from 'native-base'
 
 import { Home } from '@screens/Home'
 import { MyAdvertisements } from '@screens/MyAdvertisements'
@@ -14,23 +8,42 @@ import { DetailsAdvertisement } from '@screens/DetailsAdvertisement'
 import { CreateAdvertisement } from '@screens/CreateAdvertisement'
 import { SignOut } from '@screens/SignOut'
 
-type AppRoutes = {
+import {
+  createBottomTabNavigator,
+  BottomTabNavigationProp
+} from '@react-navigation/bottom-tabs'
+
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationProp
+} from '@react-navigation/native-stack'
+
+type BottomRoutes = {
   home: undefined
   myAdvertisements: undefined
-  detailsAdvertisement: undefined
-  createAdvertisement: undefined
   signOut: undefined
 }
 
-export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>
+type NativeStackRoutes = {
+  homeBottom: BottomRoutes
+  detailsAdvertisement: undefined
+  createAdvertisement: undefined
+}
 
-const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>()
+export type AppStackNavigatorRoutesProps =
+  NativeStackNavigationProp<NativeStackRoutes>
 
-export function AppRoutes() {
+export type AppBottomNavigatorRoutesProps =
+  BottomTabNavigationProp<BottomRoutes>
+
+const BottomTab = createBottomTabNavigator<BottomRoutes>()
+const NativeStackTab = createNativeStackNavigator<NativeStackRoutes>()
+
+function BottomTabHome() {
   const { colors, sizes } = useTheme()
 
   return (
-    <Navigator
+    <BottomTab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
@@ -44,7 +57,7 @@ export function AppRoutes() {
         }
       }}
     >
-      <Screen
+      <BottomTab.Screen
         name="home"
         component={Home}
         options={{
@@ -58,7 +71,7 @@ export function AppRoutes() {
           tabBarHideOnKeyboard: true
         }}
       />
-      <Screen
+      <BottomTab.Screen
         name="myAdvertisements"
         component={MyAdvertisements}
         options={{
@@ -71,17 +84,7 @@ export function AppRoutes() {
           )
         }}
       />
-      <Screen
-        name="detailsAdvertisement"
-        component={DetailsAdvertisement}
-        options={{ tabBarButton: () => null }}
-      />
-      <Screen
-        name="createAdvertisement"
-        component={CreateAdvertisement}
-        options={{ tabBarButton: () => null }}
-      />
-      <Screen
+      <BottomTab.Screen
         name="signOut"
         component={SignOut}
         options={{
@@ -94,6 +97,26 @@ export function AppRoutes() {
           )
         }}
       />
-    </Navigator>
+    </BottomTab.Navigator>
+  )
+}
+
+export function AppRoutes() {
+  return (
+    <NativeStackTab.Navigator
+      screenOptions={{
+        headerShown: false
+      }}
+    >
+      <NativeStackTab.Screen name="homeBottom" component={BottomTabHome} />
+      <NativeStackTab.Screen
+        name="detailsAdvertisement"
+        component={DetailsAdvertisement}
+      />
+      <NativeStackTab.Screen
+        name="createAdvertisement"
+        component={CreateAdvertisement}
+      />
+    </NativeStackTab.Navigator>
   )
 }
