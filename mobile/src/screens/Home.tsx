@@ -86,6 +86,8 @@ export function Home() {
         keyExtractor={item => item}
         renderItem={({ item }) => (
           <CardAdvertisements
+            typeTag="new"
+            advertisements="active"
             onNavigate={() => navigationStack.navigate('detailsAdvertisement')}
           />
         )}
