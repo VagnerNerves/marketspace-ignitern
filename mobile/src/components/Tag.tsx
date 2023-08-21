@@ -1,7 +1,9 @@
 import { Text, VStack, IStackProps, HStack } from 'native-base'
 
+export type TYPE_TAG = 'new' | 'used'
+
 interface TagProps {
-  type: 'new' | 'used'
+  type: TYPE_TAG
   stackProps?: IStackProps
 }
 export function Tag({ type, stackProps }: TagProps) {
