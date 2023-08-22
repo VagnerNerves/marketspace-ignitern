@@ -5,6 +5,7 @@ import { House, Tag, SignOut as SignOutPhosphor } from 'phosphor-react-native'
 import { Home } from '@screens/Home'
 import { MyAdvertisements } from '@screens/MyAdvertisements'
 import { DetailsAdvertisement } from '@screens/DetailsAdvertisement'
+import { DetailsMyAdvertisement } from '@screens/DetailsMyAdvertisement'
 import { CreateAdvertisement } from '@screens/CreateAdvertisement'
 import { SignOut } from '@screens/SignOut'
 
@@ -27,6 +28,7 @@ type BottomRoutes = {
 type NativeStackRoutes = {
   homeBottom: BottomRoutes
   detailsAdvertisement: undefined
+  detailsMyAdvertisement: undefined
   createAdvertisement: undefined
 }
 
@@ -112,6 +114,10 @@ export function AppRoutes() {
       <NativeStackTab.Screen
         name="detailsAdvertisement"
         component={DetailsAdvertisement}
+      />
+      <NativeStackTab.Screen
+        name="detailsMyAdvertisement"
+        component={DetailsMyAdvertisement}
       />
       <NativeStackTab.Screen
         name="createAdvertisement"

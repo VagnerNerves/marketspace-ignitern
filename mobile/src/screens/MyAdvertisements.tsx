@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 import { FlatList, HStack, Text, VStack } from 'native-base'
 
+import { useNavigation } from '@react-navigation/native'
+import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
+
 import { HeaderNavigation } from '@components/HeaderNavigation'
 import { Select } from '@components/Select'
 import { CardAdvertisements } from '@components/CardAdvertisements'
 
 export function MyAdvertisements() {
   const [service, setService] = useState('')
+
+  const navigatorStack = useNavigation<AppStackNavigatorRoutesProps>()
 
   const [advertisement, setAdvertisement] = useState([
     '1',
@@ -52,7 +57,7 @@ export function MyAdvertisements() {
           <CardAdvertisements
             typeTag="used"
             advertisements="inactive"
-            onNavigate={() => null}
+            onNavigate={() => navigatorStack.navigate('detailsMyAdvertisement')}
           />
         )}
         numColumns={2}
