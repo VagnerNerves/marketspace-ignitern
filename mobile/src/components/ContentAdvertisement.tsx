@@ -17,6 +17,7 @@ export function ContentAdvertisement() {
               'https://http2.mlstatic.com/D_NQ_NP_833105-MLB49306431123_032022-O.webp'
             ]}
             height={280}
+            active={false}
           />
         </VStack>
         <VStack px={6} paddingTop={5} paddingBottom={6} space={6}>
