@@ -27,7 +27,11 @@ export function MyAdvertisements() {
 
   return (
     <VStack px={6} paddingTop={16}>
-      <HeaderNavigation title="Meus anúncios" typeButton="plus" />
+      <HeaderNavigation
+        title="Meus anúncios"
+        typeButton="plus"
+        onPressButton={() => navigatorStack.navigate('createAdvertisement')}
+      />
 
       <HStack
         justifyContent="space-between"

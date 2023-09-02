@@ -18,7 +18,7 @@ export function DetailsMyAdvertisement() {
       <HeaderNavigation
         isGoBack
         typeButton="pencil"
-        onPressButton={() => null}
+        onPressButton={() => navigatorStack.navigate('createAdvertisement')}
         hStackProps={{ px: 6, marginBottom: 3 }}
       />
 

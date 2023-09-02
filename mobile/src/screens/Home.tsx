@@ -62,7 +62,10 @@ export function Home() {
           title="Criar anúncio"
           typeColor="black"
           typeIcon="plus"
-          buttonProps={{ width: 'auto' }}
+          buttonProps={{
+            width: 'auto',
+            onPress: () => navigationStack.navigate('createAdvertisement')
+          }}
         />
       </HStack>
 
