@@ -34,7 +34,7 @@ export function Input({ type, inputProps }: InputProps) {
         borderWidth: 1,
         borderColor: 'gray.300'
       }}
-      type={viewPassword ? 'text' : 'password'}
+      type={type === 'text' ? 'text' : viewPassword ? 'text' : 'password'}
       InputRightElement={
         type === 'password' ? (
           <TouchableOpacity
