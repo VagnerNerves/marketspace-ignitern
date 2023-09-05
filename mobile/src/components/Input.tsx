@@ -3,13 +3,13 @@ import {
   Input as InputNativeBase,
   IInputProps,
   useTheme,
-  Center
+  Text
 } from 'native-base'
 import { Eye, EyeSlash } from 'phosphor-react-native'
 import { useState } from 'react'
 
 interface InputProps {
-  type: 'text' | 'password'
+  type: 'text' | 'password' | 'price'
   inputProps?: IInputProps
 }
 
@@ -34,7 +34,23 @@ export function Input({ type, inputProps }: InputProps) {
         borderWidth: 1,
         borderColor: 'gray.300'
       }}
-      type={type === 'text' ? 'text' : viewPassword ? 'text' : 'password'}
+      type={
+        type === 'text' || type === 'price'
+          ? 'text'
+          : viewPassword
+          ? 'text'
+          : 'password'
+      }
+      keyboardType={type === 'price' ? 'numeric' : 'default'}
+      InputLeftElement={
+        type === 'price' ? (
+          <Text fontFamily="body" fontSize="md" color="gray.100" marginLeft={4}>
+            R$
+          </Text>
+        ) : (
+          <></>
+        )
+      }
       InputRightElement={
         type === 'password' ? (
           <TouchableOpacity
