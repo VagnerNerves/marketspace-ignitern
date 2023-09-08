@@ -1,6 +1,10 @@
 import { Platform } from 'react-native'
 import { VStack, Text, ScrollView, KeyboardAvoidingView } from 'native-base'
 
+import { useForm, Controller } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
 import { useNavigation } from '@react-navigation/native'
 import { AuthNavigationRoutesProp } from '@routes/auth.routes'
 
@@ -10,11 +14,36 @@ import MarketSpaceSvg from '@assets/marketspace.svg'
 import { Input } from '@components/Input'
 import { Button } from '@components/Button'
 
+type FormDataProps = {
+  email: string
+  password: string
+}
+
+const singInSchema = yup.object({
+  email: yup.string().required('Informe o e-mail.').email('Email Inválido.'),
+  password: yup
+    .string()
+    .required('Informe a senha.')
+    .min(6, 'A senha deve ter pelo menos 6 digítos.')
+})
+
 export function SignIn() {
   const navigation = useNavigation<AuthNavigationRoutesProp>()
 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormDataProps>({
+    resolver: yupResolver(singInSchema)
+  })
+
   function handleNewAccount() {
     navigation.navigate('singUp')
+  }
+
+  function handleSignIn({ email, password }: FormDataProps) {
+    console.log(email, password)
   }
 
   return (
@@ -54,12 +83,44 @@ export function SignIn() {
                 Acesse sua conta
               </Text>
 
-              <Input type="text" inputProps={{ placeholder: 'E-mail' }} />
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    type="text"
+                    inputProps={{
+                      placeholder: 'E-mail',
+                      onChangeText: onChange,
+                      value: value
+                    }}
+                    errorMessage={errors.email?.message}
+                  />
+                )}
+              />
 
-              <Input type="password" inputProps={{ placeholder: 'Senha' }} />
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    type="password"
+                    inputProps={{
+                      placeholder: 'Senha',
+                      onChangeText: onChange,
+                      value: value
+                    }}
+                    errorMessage={errors.password?.message}
+                  />
+                )}
+              />
             </VStack>
 
-            <Button title="Entrar" typeColor="blue" />
+            <Button
+              title="Entrar"
+              typeColor="blue"
+              buttonProps={{ onPress: handleSubmit(handleSignIn) }}
+            />
           </VStack>
           <VStack paddingY="46px" paddingX={12} space={4}>
             <Text
