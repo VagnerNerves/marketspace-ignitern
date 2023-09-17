@@ -1,5 +1,11 @@
 import { Platform } from 'react-native'
-import { VStack, Text, ScrollView, KeyboardAvoidingView } from 'native-base'
+import {
+  VStack,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  useToast
+} from 'native-base'
 
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -13,6 +19,9 @@ import MarketSpaceSvg from '@assets/marketspace.svg'
 
 import { Input } from '@components/Input'
 import { Button } from '@components/Button'
+import { useState } from 'react'
+import { useAuth } from '@hooks/useAuth'
+import { AppError } from '@utils/AppError'
 
 type FormDataProps = {
   email: string
@@ -28,7 +37,11 @@ const singInSchema = yup.object({
 })
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false)
   const navigation = useNavigation<AuthNavigationRoutesProp>()
+
+  const toast = useToast()
+  const { signIn } = useAuth()
 
   const {
     control,
@@ -42,8 +55,25 @@ export function SignIn() {
     navigation.navigate('singUp')
   }
 
-  function handleSignIn({ email, password }: FormDataProps) {
-    console.log(email, password)
+  async function handleSignIn({ email, password }: FormDataProps) {
+    try {
+      setIsLoading(true)
+
+      await signIn(email, password)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const messageError = isAppError
+        ? error.message
+        : 'Não foi possível entrar no momento. Tente novamente mais tarde.'
+
+      toast.show({
+        title: messageError,
+        placement: 'top',
+        bgColor: 'error.600'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -119,7 +149,10 @@ export function SignIn() {
             <Button
               title="Entrar"
               typeColor="blue"
-              buttonProps={{ onPress: handleSubmit(handleSignIn) }}
+              buttonProps={{
+                onPress: handleSubmit(handleSignIn),
+                isLoading: isLoading
+              }}
             />
           </VStack>
           <VStack paddingY="46px" paddingX={12} space={4}>
