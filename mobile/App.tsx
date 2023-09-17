@@ -1,5 +1,7 @@
 import 'react-native-gesture-handler'
 
+import { AuthContextProvider } from '@contexts/AuthContext'
+
 import { StatusBar } from 'react-native'
 import { NativeBaseProvider } from 'native-base'
 import { Host } from 'react-native-portalize'
@@ -30,9 +32,11 @@ export default function App() {
         translucent
       />
 
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Host>{fontsLoaded ? <Routes /> : <Loading />}</Host>
-      </GestureHandlerRootView>
+      <AuthContextProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Host>{fontsLoaded ? <Routes /> : <Loading />}</Host>
+        </GestureHandlerRootView>
+      </AuthContextProvider>
     </NativeBaseProvider>
   )
 }
