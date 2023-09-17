@@ -53,11 +53,11 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   async function signIn(email: string, password: string) {
     try {
-      setIsLoadingUser(true)
-
       const { data } = await api.post('/sessions', { email, password })
 
       if (data.token && data.user && data.refresh_token) {
+        setIsLoadingUser(true)
+
         await storageUserAndTokenSave(data.user, data.token, data.refresh_token)
 
         await userAndTokenUpdate(data.user, data.token)
