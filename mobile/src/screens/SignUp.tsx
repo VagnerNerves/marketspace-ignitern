@@ -1,5 +1,7 @@
 import { Platform, TouchableOpacity } from 'react-native'
 
+import { api } from '@services/api'
+
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -15,7 +17,8 @@ import {
   KeyboardAvoidingView,
   Heading,
   useTheme,
-  FormControl
+  FormControl,
+  useToast
 } from 'native-base'
 
 import { useNavigation } from '@react-navigation/native'
@@ -32,6 +35,8 @@ import {
   numberCleanTel,
   validateTel
 } from '@utils/validationAndFormattedTel'
+import { AppError } from '@utils/AppError'
+import { useAuth } from '@hooks/useAuth'
 
 type FormDataProps = {
   urlImage: string
@@ -72,9 +77,14 @@ const signUpSchema = yup.object({
 })
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false)
   const [imageSelect, setImageSelect] = useState<ImagePicker.ImagePickerAsset>(
     {} as ImagePicker.ImagePickerAsset
   )
+
+  const toast = useToast()
+  const { signIn } = useAuth()
+
   const { colors } = useTheme()
 
   const navigation = useNavigation<AuthNavigationRoutesProp>()
@@ -91,10 +101,48 @@ export function SignUp() {
     navigation.goBack()
   }
 
-  function handleSignUp(dataForm: FormDataProps) {
-    const { urlImage, name, email, tel, password } = dataForm
+  async function handleSignUp(dataForm: FormDataProps) {
+    const { name, email, tel, password } = dataForm
 
-    console.log(dataForm)
+    setIsLoading(true)
+
+    try {
+      const fileExtension = imageSelect.uri.split('.').pop()
+      const fileName = imageSelect.uri.split('/').pop()
+
+      const photoFile = {
+        name: fileName,
+        uri: imageSelect.uri,
+        type: `${imageSelect.type}/${fileExtension}`
+      } as any
+
+      const userUploadForm = new FormData()
+      userUploadForm.append('avatar', photoFile)
+
+      userUploadForm.append('name', name)
+      userUploadForm.append('email', email)
+      userUploadForm.append('tel', tel)
+      userUploadForm.append('password', password)
+
+      const response = await api.post('/users', userUploadForm, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+
+      await signIn(email, password)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const messageError = isAppError
+        ? error.message
+        : 'Não foi possível criar a conta. Tente novamente mais tarde.'
+
+      toast.show({
+        title: messageError,
+        placement: 'top',
+        bgColor: 'error.600'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   async function handleSearchImage() {
@@ -279,7 +327,10 @@ export function SignUp() {
             <Button
               title="Criar"
               typeColor="black"
-              buttonProps={{ onPress: handleSubmit(handleSignUp) }}
+              buttonProps={{
+                onPress: handleSubmit(handleSignUp),
+                isLoading: isLoading
+              }}
             />
           </VStack>
 
