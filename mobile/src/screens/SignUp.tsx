@@ -59,7 +59,16 @@ const signUpSchema = yup.object({
   confirmPassword: yup
     .string()
     .required('Informe a senha')
-    .min(6, 'A senha deve ter pelo menos 6 digítos.')
+    .transform(value => (!!value ? value : null))
+    .oneOf([yup.ref('password')], 'A confirmação da senha não confere.')
+    .when('password', {
+      is: (Field: any) => Field && Field !== null,
+      then: schema =>
+        schema
+          .nullable()
+          .required('Informe a confirmação da senha.')
+          .transform(value => (!!value ? value : null))
+    })
 })
 
 export function SignUp() {
@@ -141,7 +150,7 @@ export function SignUp() {
               <Controller
                 control={control}
                 name="urlImage"
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange } }) => (
                   <FormControl
                     isInvalid={!!errors.urlImage?.message}
                     alignItems="center"
