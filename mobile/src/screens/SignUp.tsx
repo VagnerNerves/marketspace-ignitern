@@ -27,6 +27,11 @@ import { Input } from '@components/Input'
 import { Button } from '@components/Button'
 import { UserPhoto } from '@components/UserPhoto'
 import { useState } from 'react'
+import {
+  formattedTel,
+  numberCleanTel,
+  validateTel
+} from '@utils/validationAndFormattedTel'
 
 type FormDataProps = {
   urlImage: string
@@ -41,7 +46,12 @@ const signUpSchema = yup.object({
   urlImage: yup.string().required('Infome a foto'),
   name: yup.string().required('Informe o nome.'),
   email: yup.string().required('Informe o email.').email('Email Inválido.'),
-  tel: yup.string().required('Informe o telefone.'),
+  tel: yup
+    .string()
+    .required('Informe o telefone.')
+    .test('Validar Telefone', 'Telefone Inválido.', value =>
+      validateTel(value)
+    ),
   password: yup
     .string()
     .required('Informe a senha')
@@ -212,8 +222,12 @@ export function SignUp() {
                     type="text"
                     inputProps={{
                       placeholder: 'Telefone',
-                      onChangeText: onChange,
-                      value: value,
+                      onChangeText: text => {
+                        const textNumberTel = numberCleanTel(text)
+
+                        onChange(textNumberTel)
+                      },
+                      value: formattedTel(value),
                       keyboardType: 'phone-pad'
                     }}
                     errorMessage={errors.tel?.message}
