@@ -122,7 +122,8 @@ export function SignIn() {
                     inputProps={{
                       placeholder: 'E-mail',
                       onChangeText: onChange,
-                      value: value
+                      value: value,
+                      keyboardType: 'email-address'
                     }}
                     errorMessage={errors.email?.message}
                   />
