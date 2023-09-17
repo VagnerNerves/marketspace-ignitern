@@ -10,7 +10,8 @@
       "@screens/*": ["./src/screens/*"],
       "@theme/*": ["./src/theme/*"],
       "@utils/*": ["./src/utils/*"],
-      "@services/*": ["./src/services/*"]
+      "@services/*": ["./src/services/*"],
+      "@contexts/*": ["./src/contexts/*"]
     }
   }
 }

@@ -14,7 +14,8 @@ module.exports = function (api) {
             '@screens': './src/screens',
             '@theme': './src/theme',
             '@utils': './src/utils',
-            '@services': './src/services'
+            '@services': './src/services',
+            '@contexts': './src/contexts'
           }
         }
       ],
