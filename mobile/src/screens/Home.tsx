@@ -6,6 +6,9 @@ import { Modalize } from 'react-native-modalize'
 import { useNavigation } from '@react-navigation/native'
 import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
 
+import { useAuth } from '@hooks/useAuth'
+import { api } from '@services/api'
+
 import { Button } from '@components/Button'
 import { UserPhoto } from '@components/UserPhoto'
 import { CardInfoAdvertisements } from '@components/CardInfoAdvertisements'
@@ -14,6 +17,8 @@ import { CardAdvertisements } from '@components/CardAdvertisements'
 import { ModalFilterAdvertisements } from '@components/ModalFilterAdvertisements'
 
 export function Home() {
+  const { user } = useAuth()
+
   const [advertisement, setAdvertisement] = useState([
     '1',
     '2',
@@ -42,7 +47,11 @@ export function Home() {
           <UserPhoto
             size={45}
             borderWidth={2}
-            url="https://github.com/VagnerNerves.png"
+            url={
+              user.avatar
+                ? `${api.defaults.baseURL}/images/${user.avatar}`
+                : undefined
+            }
           />
           <VStack flex={1}>
             <Text fontFamily="body" fontSize="md" color="gray.100">
@@ -54,7 +63,7 @@ export function Home() {
               color="gray.100"
               numberOfLines={1}
             >
-              Vagner Nerves!
+              {`${user.name}!`}
             </Text>
           </VStack>
         </HStack>
