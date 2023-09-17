@@ -1,15 +1,24 @@
-import { ReactNode, createContext, useState } from 'react'
+import { ReactNode, createContext, useEffect, useState } from 'react'
 
 import { api } from '@services/api'
 
 import { UserDTO } from '@dtos/UserDTO'
-import { storageUserSave } from '@storage/storageUser'
-import { storageAuthTokenSave } from '@storage/storageAuthToken'
+import {
+  storageUserGet,
+  storageUserRemove,
+  storageUserSave
+} from '@storage/storageUser'
+import {
+  storageAuthTokenGet,
+  storageAuthTokenRemove,
+  storageAuthTokenSave
+} from '@storage/storageAuthToken'
 
 type AuthContextDataProps = {
   user: UserDTO
   isLoadingUser: boolean
   signIn: (email: string, password: string) => Promise<void>
+  singOut: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextDataProps>(
@@ -22,7 +31,7 @@ type AuthContextProviderProps = {
 
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [user, setUser] = useState<UserDTO>({} as UserDTO)
-  const [isLoadingUser, setIsLoadingUser] = useState(false)
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
 
   async function userAndTokenUpdate(userData: UserDTO, token: string) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -60,12 +69,48 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     }
   }
 
+  async function singOut() {
+    try {
+      setIsLoadingUser(true)
+
+      setUser({} as UserDTO)
+      await storageUserRemove()
+      await storageAuthTokenRemove()
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoadingUser(false)
+    }
+  }
+
+  async function loadUserData() {
+    try {
+      setIsLoadingUser(true)
+
+      const userLogged = await storageUserGet()
+      const { token } = await storageAuthTokenGet()
+
+      if (token && userLogged) {
+        await userAndTokenUpdate(userLogged, token)
+      }
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoadingUser(false)
+    }
+  }
+
+  useEffect(() => {
+    loadUserData()
+  }, [])
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isLoadingUser,
-        signIn
+        signIn,
+        singOut
       }}
     >
       {children}
