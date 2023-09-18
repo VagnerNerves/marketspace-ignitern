@@ -2,6 +2,8 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native'
 
 import { Box, useTheme } from 'native-base'
 
+import { ProductContextProvider } from '@contexts/ProductContext'
+
 import { useAuth } from '@hooks/useAuth'
 
 import { AuthRoutes } from './auth.routes'
@@ -22,7 +24,13 @@ export function Routes() {
   return (
     <Box flex={1} bg="gray.600">
       <NavigationContainer theme={theme}>
-        {user.id ? <AppRoutes /> : <AuthRoutes />}
+        {user.id ? (
+          <ProductContextProvider>
+            <AppRoutes />
+          </ProductContextProvider>
+        ) : (
+          <AuthRoutes />
+        )}
       </NavigationContainer>
     </Box>
   )
