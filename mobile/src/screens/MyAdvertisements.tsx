@@ -1,29 +1,50 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { FlatList, HStack, Text, VStack } from 'native-base'
 
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
+
+import { useProduct } from '@hooks/useProduct'
 
 import { HeaderNavigation } from '@components/HeaderNavigation'
 import { Select } from '@components/Select'
 import { CardAdvertisements } from '@components/CardAdvertisements'
+import { ProductDTO } from '@dtos/ProductDTO'
+
+type FilterAdvertisementsProps = 'all' | 'active' | 'inactive'
 
 export function MyAdvertisements() {
-  const [service, setService] = useState('')
+  const { myTotProducts, myProducts, getMyProducts } = useProduct()
+
+  const [myProductsFiltered, setMyProductsFiltered] =
+    useState<ProductDTO[]>(myProducts)
+  const [filterAdvertisements, setFilterAdvertisements] =
+    useState<FilterAdvertisementsProps>('all')
 
   const navigatorStack = useNavigation<AppStackNavigatorRoutesProps>()
 
-  const [advertisement, setAdvertisement] = useState([
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6'
-  ])
+  useFocusEffect(
+    useCallback(() => {
+      getMyProducts()
+    }, [])
+  )
 
-  console.log(service)
+  useEffect(() => {
+    if (filterAdvertisements === 'all') {
+      setMyProductsFiltered(myProducts)
+    }
+
+    if (filterAdvertisements === 'active') {
+      const filtered = myProducts.filter(item => item.is_active === true)
+      setMyProductsFiltered(filtered)
+    }
+
+    if (filterAdvertisements === 'inactive') {
+      const filtered = myProducts.filter(item => item.is_active === false)
+      setMyProductsFiltered(filtered)
+    }
+  }, [filterAdvertisements])
 
   return (
     <VStack px={6} paddingTop={16}>
@@ -39,28 +60,34 @@ export function MyAdvertisements() {
         paddingTop={8}
         paddingBottom={5}
       >
-        <Text>9 anúncios</Text>
+        <Text>
+          {myTotProducts.totProducts}{' '}
+          {myTotProducts.totProducts === 1 ? 'anúncio' : 'anúncios'}
+        </Text>
 
         <Select
           items={[
-            { label: 'Todos', value: 'all' },
-            { label: 'Ativos', value: 'active' },
-            { label: 'Inativos', value: 'inactive' }
+            { label: 'Todos', value: 'all' as FilterAdvertisementsProps },
+            { label: 'Ativos', value: 'active' as FilterAdvertisementsProps },
+            {
+              label: 'Inativos',
+              value: 'inactive' as FilterAdvertisementsProps
+            }
           ]}
           selectProps={{
-            selectedValue: service,
-            onValueChange: item => setService(item)
+            selectedValue: filterAdvertisements,
+            onValueChange: item =>
+              setFilterAdvertisements(item as FilterAdvertisementsProps)
           }}
         />
       </HStack>
 
       <FlatList
-        data={advertisement}
-        keyExtractor={item => item}
+        data={myProductsFiltered}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <CardAdvertisements
-            typeTag="used"
-            advertisements="inactive"
+            product={item}
             onNavigate={() => navigatorStack.navigate('detailsMyAdvertisement')}
           />
         )}
