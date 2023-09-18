@@ -2,22 +2,25 @@ import { Image, Text, VStack } from 'native-base'
 import { UserPhoto } from './UserPhoto'
 import { TYPE_TAG, Tag } from './Tag'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { ProductDTO } from '@dtos/ProductDTO'
+import { api } from '@services/api'
+import { useAuth } from '@hooks/useAuth'
 
 interface CardAdvertisementsProps {
-  typeTag: TYPE_TAG
-  advertisements: 'active' | 'inactive'
+  product: ProductDTO
   onNavigate?: () => void
 }
 export function CardAdvertisements({
-  typeTag,
-  advertisements,
+  product,
   onNavigate
 }: CardAdvertisementsProps) {
+  const { user } = useAuth()
+
   return (
     <VStack flex={1}>
       <TouchableOpacity onPress={onNavigate}>
         <VStack h={24} borderRadius="6px" overflow="hidden">
-          {advertisements === 'inactive' && (
+          {product.is_active === false && (
             <>
               <VStack
                 bg="gray.100"
@@ -43,7 +46,9 @@ export function CardAdvertisements({
           <Image
             h={24}
             source={{
-              uri: 'https://levezastore.com.br/cdn/shop/products/tenis-masculino-fashion-tenis-masculino-fashion-ga-leveza-store-325142_1024x.jpg'
+              uri: product.product_images[0]
+                ? `${api.defaults.baseURL}/images/${product.product_images[0].path}`
+                : undefined
             }}
             alt="Foto do Produto"
             resizeMode="cover"
@@ -52,7 +57,9 @@ export function CardAdvertisements({
             size={24}
             borderWidth={1}
             borderColor="gray"
-            url="https://github.com/VagnerNerves.png"
+            url={`${api.defaults.baseURL}/images/${
+              product.user ? product.user.avatar : user.avatar
+            }`}
             stackProps={{
               position: 'absolute',
               top: '4px',
@@ -60,7 +67,7 @@ export function CardAdvertisements({
             }}
           />
           <Tag
-            type={typeTag}
+            type={product.is_new === true ? 'new' : 'used'}
             stackProps={{ position: 'absolute', top: '4px', right: '4px' }}
           />
         </VStack>
@@ -68,16 +75,16 @@ export function CardAdvertisements({
           <Text
             fontFamily="body"
             fontSize="sm"
-            color={advertisements === 'active' ? 'gray.200' : 'gray.400'}
+            color={product.is_active === true ? 'gray.200' : 'gray.400'}
           >
-            Tênis branco
+            {product.name}
           </Text>
           <Text
-            fontFamily={advertisements === 'active' ? 'heading' : 'body'}
+            fontFamily={product.is_active === true ? 'heading' : 'body'}
             fontSize="xs"
-            color={advertisements === 'active' ? 'gray.100' : 'gray.400'}
+            color={product.is_active === true ? 'gray.100' : 'gray.400'}
           >
-            R$ <Text fontSize="md">59.90</Text>
+            R$ <Text fontSize="md">{product.price}</Text>
           </Text>
         </VStack>
       </TouchableOpacity>
