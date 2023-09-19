@@ -14,6 +14,7 @@ type ProductContextDataProps = {
   myProducts: ProductDTO[]
   myTotProducts: MyTotProductsProps
   getMyProducts: () => Promise<void>
+  isLoadingGetMyProducts: boolean
 }
 
 export const ProductContext = createContext<ProductContextDataProps>(
@@ -31,33 +32,51 @@ export function ProductContextProvider({
   const [myTotProducts, setMyTotProducts] = useState<MyTotProductsProps>(
     {} as MyTotProductsProps
   )
+  const [isLoadingGetMyProducts, setIsLoadingGetMyProducts] =
+    useState<boolean>(true)
 
-  function totMyProducts(products: ProductDTO[]) {
+  function totalizedMyProducts(products: ProductDTO[]) {
+    const { totActive, totInactive } = products.reduce(
+      (currentValue, value) => {
+        value.is_active === true
+          ? currentValue.totActive++
+          : currentValue.totInactive++
+
+        return currentValue
+      },
+      { totActive: 0, totInactive: 0 }
+    )
+
     setMyTotProducts({
       totProducts: products.length,
-      totProductsIsActive: products.filter(
-        product => product.is_active === true
-      ).length,
-      totProductsIsNotActive: products.filter(
-        product => product.is_active === false
-      ).length
+      totProductsIsActive: totActive,
+      totProductsIsNotActive: totInactive
     })
   }
 
   async function getMyProducts() {
     try {
+      setIsLoadingGetMyProducts(true)
+
       const { data } = await api.get('/users/products')
 
-      totMyProducts(data)
+      totalizedMyProducts(data)
       setMyProducts(data)
     } catch (error) {
       throw error
+    } finally {
+      setIsLoadingGetMyProducts(false)
     }
   }
 
   return (
     <ProductContext.Provider
-      value={{ myProducts, myTotProducts, getMyProducts }}
+      value={{
+        myProducts,
+        myTotProducts,
+        getMyProducts,
+        isLoadingGetMyProducts
+      }}
     >
       {children}
     </ProductContext.Provider>
