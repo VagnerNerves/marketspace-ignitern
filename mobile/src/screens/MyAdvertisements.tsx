@@ -17,15 +17,18 @@ import { Loading } from '@components/Loading'
 type FilterAdvertisementsProps = 'all' | 'active' | 'inactive'
 
 export function MyAdvertisements() {
-  const { myTotProducts, myProducts, getMyProducts } = useProduct()
+  const { myProducts, getMyProducts } = useProduct()
 
   const toast = useToast()
 
   const navigatorStack = useNavigation<AppStackNavigatorRoutesProps>()
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
+
   const [myProductsFiltered, setMyProductsFiltered] =
     useState<ProductDTO[]>(myProducts)
+  const [myTotProductsFiltered, setMyTotProductsFiltered] = useState<number>(0)
+
   const [filterAdvertisements, setFilterAdvertisements] =
     useState<FilterAdvertisementsProps>('all')
 
@@ -53,16 +56,19 @@ export function MyAdvertisements() {
 
   useEffect(() => {
     if (filterAdvertisements === 'all') {
+      setMyTotProductsFiltered(myProducts.length)
       setMyProductsFiltered(myProducts)
     }
 
     if (filterAdvertisements === 'active') {
       const filtered = myProducts.filter(item => item.is_active === true)
+      setMyTotProductsFiltered(filtered.length)
       setMyProductsFiltered(filtered)
     }
 
     if (filterAdvertisements === 'inactive') {
       const filtered = myProducts.filter(item => item.is_active === false)
+      setMyTotProductsFiltered(filtered.length)
       setMyProductsFiltered(filtered)
     }
   }, [filterAdvertisements])
@@ -83,8 +89,8 @@ export function MyAdvertisements() {
           paddingBottom={5}
         >
           <Text>
-            {myTotProducts.totProducts}{' '}
-            {myTotProducts.totProducts === 1 ? 'anúncio' : 'anúncios'}
+            {myTotProductsFiltered}{' '}
+            {myTotProductsFiltered === 1 ? 'anúncio' : 'anúncios'}
           </Text>
 
           <Select
@@ -126,21 +132,23 @@ export function MyAdvertisements() {
           }}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={() =>
-            myProducts.length === 0 ? (
+            myProducts.length === 0 || myProductsFiltered.length === 0 ? (
               <Text
                 fontFamily="body"
                 fontSize="sm"
                 color="gray.100"
                 textAlign="center"
               >
-                Você não possui nenhum anúncio cadastrado.
+                {myProducts.length === 0
+                  ? 'Você não possui nenhum anúncio cadastrado.'
+                  : 'Nenhum anúncio encontrado.'}
               </Text>
             ) : (
               <></>
             )
           }
           contentContainerStyle={
-            myProducts.length === 0 && {
+            (myProducts.length === 0 || myProductsFiltered.length === 0) && {
               flex: 1,
               justifyContent: 'center'
             }
