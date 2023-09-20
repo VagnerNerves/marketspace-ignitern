@@ -5,15 +5,20 @@ import {
   Divider,
   HStack,
   Input as InputNativeBase,
+  IInputProps,
   useTheme
 } from 'native-base'
 
 interface InputSearchAdvertisementsProps {
+  getAdvertisements: () => void
   openModalFilter: () => void
+  inputProps: IInputProps
 }
 
 export function InputSearchAdvertisements({
-  openModalFilter
+  getAdvertisements,
+  openModalFilter,
+  inputProps
 }: InputSearchAdvertisementsProps) {
   const { colors } = useTheme()
 
@@ -37,7 +42,7 @@ export function InputSearchAdvertisements({
       type="text"
       InputRightElement={
         <HStack space={3} marginLeft={3} marginRight={4} alignItems="center">
-          <TouchableOpacity>
+          <TouchableOpacity onPress={getAdvertisements}>
             <MagnifyingGlass weight="bold" size={20} color={colors.gray[200]} />
           </TouchableOpacity>
           <Divider bg="gray.400" w="1px" h="18px" orientation="vertical" />
@@ -47,6 +52,7 @@ export function InputSearchAdvertisements({
         </HStack>
       }
       placeholder="Buscar anúncio"
+      {...inputProps}
     />
   )
 }
