@@ -1,4 +1,4 @@
-import { PaymentMetodDTO } from './PaymentMethodDTO'
+import { PaymentMethodDTO } from './PaymentMethodDTO'
 import { ProductImageDTO } from './ProductImageDTO'
 import { UserDTO } from './UserDTO'
 
@@ -11,6 +11,6 @@ export type ProductDTO = {
   accept_trade: boolean
   is_active: boolean
   product_images: ProductImageDTO[]
-  payment_metods: PaymentMetodDTO[]
+  payment_metods: PaymentMethodDTO[]
   user: UserDTO
 }
