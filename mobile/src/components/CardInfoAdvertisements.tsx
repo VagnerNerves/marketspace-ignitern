@@ -8,11 +8,11 @@ import { Tag, ArrowRight } from 'phosphor-react-native'
 import { HStack, Text, VStack, useTheme } from 'native-base'
 
 interface CardInfoAdvertisementsProps {
-  numberTotalAdvertisements: number
+  numberTotalAdvertisementsIsActive: number
 }
 
 export function CardInfoAdvertisements({
-  numberTotalAdvertisements
+  numberTotalAdvertisementsIsActive
 }: CardInfoAdvertisementsProps) {
   const { colors } = useTheme()
 
@@ -38,7 +38,7 @@ export function CardInfoAdvertisements({
 
           <VStack>
             <Text fontFamily="heading" fontSize="xl" color="gray.200">
-              {numberTotalAdvertisements}
+              {numberTotalAdvertisementsIsActive}
             </Text>
             <Text fontFamily="body" fontSize="xs" color="gray.200">
               anúncions ativos
