@@ -5,6 +5,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import { ProductDTO } from '@dtos/ProductDTO'
 import { api } from '@services/api'
 import { useAuth } from '@hooks/useAuth'
+import { formattedNumberForRealBRL } from '@utils/validationAndFormattedNumberForRealt'
 
 interface CardAdvertisementsProps {
   product: ProductDTO
@@ -84,7 +85,10 @@ export function CardAdvertisements({
             fontSize="xs"
             color={product.is_active === true ? 'gray.100' : 'gray.400'}
           >
-            R$ <Text fontSize="md">{product.price}</Text>
+            R${' '}
+            <Text fontSize="md">
+              {formattedNumberForRealBRL(product.price)}
+            </Text>
           </Text>
         </VStack>
       </TouchableOpacity>
