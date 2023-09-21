@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TouchableOpacity } from 'react-native'
-import { HStack, Text, VStack, useTheme } from 'native-base'
+import { HStack, Text, VStack, useTheme, useToast } from 'native-base'
 
 import { Modalize } from 'react-native-modalize'
 import { Portal } from 'react-native-portalize'
@@ -11,6 +11,9 @@ import { Button } from './Button'
 import { SelectTag } from './SelectTag'
 import { Switch } from './Switch'
 import { Checkbox } from './Checkbox'
+import { useProduct } from '@hooks/useProduct'
+import { paymentMethodsDB } from '@dtos/PaymentMethodDTO'
+import { AppError } from '@utils/AppError'
 
 interface ModalFilterAdvertisementsProps {
   modalizeRef: React.RefObject<Modalize>
@@ -19,30 +22,68 @@ interface ModalFilterAdvertisementsProps {
 export function ModalFilterAdvertisements({
   modalizeRef
 }: ModalFilterAdvertisementsProps) {
-  const [selectProductNew, setSelectProductNew] = useState(false)
-  const [selectProductUsed, setSelectProductUsed] = useState(false)
-  const [acceptExchange, setAcceptExchange] = useState(false)
-  const [selectedTicket, setSelectedTicket] = useState(false)
-  const [selectedPix, setSelectedPix] = useState(false)
-  const [selectedCash, setSelectedCash] = useState(false)
-  const [selectedCreditCard, setSelectedCreditCard] = useState(false)
-  const [selectedBankDeposit, setSelectedBankDeposit] = useState(false)
+  const { filteredProducts, setFilteredProducts, getProducts } = useProduct()
 
   const { colors } = useTheme()
+  const toast = useToast()
 
   function handleModalClose() {
     modalizeRef.current?.close()
   }
 
   function handleResetFilter() {
-    setSelectProductNew(false)
-    setSelectProductUsed(false)
-    setAcceptExchange(false)
-    setSelectedTicket(false)
-    setSelectedPix(false)
-    setSelectedCash(false)
-    setSelectedCreditCard(false)
-    setSelectedBankDeposit(false)
+    setFilteredProducts(prevState => ({
+      ...prevState,
+      isNew: false,
+      isUsed: false,
+      acceptTrade: false,
+      paymentMethods: []
+    }))
+  }
+
+  function togglePaymentMethod(key: string, name: string) {
+    const { paymentMethods } = filteredProducts
+
+    if (paymentMethods) {
+      const updatePaymentMethods = paymentMethods.filter(
+        method => method.key !== key
+      )
+
+      if (updatePaymentMethods.length === paymentMethods.length) {
+        setFilteredProducts(prevState => ({
+          ...prevState,
+          paymentMethods: [...paymentMethods, { key, name }]
+        }))
+      } else {
+        setFilteredProducts(prevState => ({
+          ...prevState,
+          paymentMethods: updatePaymentMethods
+        }))
+      }
+    } else {
+      setFilteredProducts(prevState => ({
+        ...prevState,
+        paymentMethods: [{ key, name }]
+      }))
+    }
+  }
+
+  async function handleGetProducts() {
+    try {
+      await getProducts()
+      handleModalClose()
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const messageError = isAppError
+        ? error.message
+        : 'Não foi possível filtrar os anúncios. Tente novamente mais tarde.'
+
+      toast.show({
+        title: messageError,
+        placement: 'top',
+        bgColor: 'error.600'
+      })
+    }
   }
 
   return (
@@ -86,13 +127,23 @@ export function ModalFilterAdvertisements({
               <HStack space={2}>
                 <SelectTag
                   title="NOVO"
-                  value={selectProductNew}
-                  onPress={() => setSelectProductNew(prevState => !prevState)}
+                  value={!!filteredProducts.isNew}
+                  onPress={() =>
+                    setFilteredProducts(prevState => ({
+                      ...prevState,
+                      isNew: !prevState.isNew
+                    }))
+                  }
                 />
                 <SelectTag
                   title="USADO"
-                  value={selectProductUsed}
-                  onPress={() => setSelectProductUsed(prevState => !prevState)}
+                  value={!!filteredProducts.isUsed}
+                  onPress={() =>
+                    setFilteredProducts(prevState => ({
+                      ...prevState,
+                      isUsed: !prevState.isUsed
+                    }))
+                  }
                 />
               </HStack>
             </VStack>
@@ -103,8 +154,13 @@ export function ModalFilterAdvertisements({
               </Text>
 
               <Switch
-                value={acceptExchange}
-                onValueChange={() => setAcceptExchange(prevState => !prevState)}
+                value={!!filteredProducts.acceptTrade}
+                onValueChange={() =>
+                  setFilteredProducts(prevState => ({
+                    ...prevState,
+                    acceptTrade: !prevState.acceptTrade
+                  }))
+                }
               />
             </VStack>
 
@@ -114,39 +170,20 @@ export function ModalFilterAdvertisements({
               </Text>
 
               <VStack space={2}>
-                <Checkbox
-                  title="Boleto"
-                  value={selectedTicket}
-                  onValueChange={() =>
-                    setSelectedTicket(prevState => !prevState)
-                  }
-                />
-                <Checkbox
-                  title="Pix"
-                  value={selectedPix}
-                  onValueChange={() => setSelectedPix(prevState => !prevState)}
-                />
-                <Checkbox
-                  title="Dinheiro"
-                  value={selectedCash}
-                  onValueChange={() => setSelectedCash(prevState => !prevState)}
-                />
-
-                <Checkbox
-                  title="Cartão de Crédito"
-                  value={selectedCreditCard}
-                  onValueChange={() =>
-                    setSelectedCreditCard(prevState => !prevState)
-                  }
-                />
-
-                <Checkbox
-                  title="Depósito Bancário"
-                  value={selectedBankDeposit}
-                  onValueChange={() =>
-                    setSelectedBankDeposit(prevState => !prevState)
-                  }
-                />
+                {paymentMethodsDB.map(method => (
+                  <Checkbox
+                    key={method.key}
+                    title={method.name}
+                    value={
+                      !!filteredProducts.paymentMethods?.find(value => {
+                        return value.key === method.key
+                      })
+                    }
+                    onValueChange={() =>
+                      togglePaymentMethod(method.key, method.name)
+                    }
+                  />
+                ))}
               </VStack>
             </VStack>
           </VStack>
@@ -164,7 +201,8 @@ export function ModalFilterAdvertisements({
               title="Aplicar filtros"
               typeColor="black"
               buttonProps={{
-                flex: 1
+                flex: 1,
+                onPress: handleGetProducts
               }}
             />
           </HStack>
