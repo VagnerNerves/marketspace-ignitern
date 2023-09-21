@@ -1,13 +1,16 @@
-import { useRef, useState } from 'react'
-import { FlatList, HStack, Text, VStack } from 'native-base'
+import { useEffect, useRef } from 'react'
+import { FlatList, HStack, Text, VStack, useToast } from 'native-base'
 
 import { Modalize } from 'react-native-modalize'
 
 import { useNavigation } from '@react-navigation/native'
 import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
 
-import { useAuth } from '@hooks/useAuth'
 import { api } from '@services/api'
+import { AppError } from '@utils/AppError'
+
+import { useAuth } from '@hooks/useAuth'
+import { useProduct } from '@hooks/useProduct'
 
 import { Button } from '@components/Button'
 import { UserPhoto } from '@components/UserPhoto'
@@ -15,18 +18,22 @@ import { CardInfoAdvertisements } from '@components/CardInfoAdvertisements'
 import { InputSearchAdvertisements } from '@components/InputSearchAdvertisements'
 import { CardAdvertisements } from '@components/CardAdvertisements'
 import { ModalFilterAdvertisements } from '@components/ModalFilterAdvertisements'
+import { Loading } from '@components/Loading'
+import { ProductDTO } from '@dtos/ProductDTO'
 
 export function Home() {
   const { user } = useAuth()
+  const {
+    myTotProducts,
+    getMyProducts,
+    isLoadingGetProducts,
+    getProducts,
+    products,
+    filteredProducts,
+    setFilteredProducts
+  } = useProduct()
 
-  const [advertisement, setAdvertisement] = useState([
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6'
-  ])
+  const toast = useToast()
 
   const modalizeRef = useRef<Modalize>(null)
   const navigationStack = useNavigation<AppStackNavigatorRoutesProps>()
@@ -34,6 +41,40 @@ export function Home() {
   function handleOpenModal() {
     modalizeRef.current?.open()
   }
+
+  useEffect(() => {
+    try {
+      getMyProducts()
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const messageError = isAppError
+        ? error.message
+        : 'Não foi possível buscar seus anúncios. Tente novamente mais tarde.'
+
+      toast.show({
+        title: messageError,
+        placement: 'top',
+        bgColor: 'error.600'
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      getProducts()
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const messageError = isAppError
+        ? error.message
+        : 'Não foi possível buscar os anúncios. Tente novamente mais tarde.'
+
+      toast.show({
+        title: messageError,
+        placement: 'top',
+        bgColor: 'error.600'
+      })
+    }
+  }, [])
 
   return (
     <VStack flex={1} paddingTop={16} px={6}>
@@ -78,38 +119,84 @@ export function Home() {
         />
       </HStack>
 
-      <VStack space={3} marginBottom={8}>
-        <Text fontFamily="body" fontSize="sm" color="gray.300">
-          Seus produtos anunciados para venda
-        </Text>
+      {myTotProducts.totProductsIsActive > 0 && (
+        <VStack space={3} marginBottom={8}>
+          <Text fontFamily="body" fontSize="sm" color="gray.300">
+            Seus produtos anunciados para venda
+          </Text>
 
-        <CardInfoAdvertisements numberTotalAdvertisements={4} />
-      </VStack>
+          <CardInfoAdvertisements
+            numberTotalAdvertisementsIsActive={
+              myTotProducts.totProductsIsActive
+            }
+          />
+        </VStack>
+      )}
 
       <VStack space={3} marginBottom={6}>
         <Text>Compre produtos variados</Text>
 
-        <InputSearchAdvertisements openModalFilter={handleOpenModal} />
+        <InputSearchAdvertisements
+          getAdvertisements={getProducts}
+          openModalFilter={handleOpenModal}
+          inputProps={{
+            value: filteredProducts.searchNameProduct,
+            onChangeText: value =>
+              setFilteredProducts(prevState => ({
+                ...prevState,
+                searchNameProduct: value.trimStart()
+              }))
+          }}
+        />
         <ModalFilterAdvertisements modalizeRef={modalizeRef} />
       </VStack>
 
-      <FlatList
-        data={advertisement}
-        keyExtractor={item => item}
-        renderItem={({ item }) => (
-          <CardAdvertisements
-            typeTag="new"
-            advertisements="active"
-            onNavigate={() => navigationStack.navigate('detailsAdvertisement')}
-          />
-        )}
-        numColumns={2}
-        columnWrapperStyle={{
-          gap: 20,
-          paddingBottom: 24
-        }}
-        showsVerticalScrollIndicator={false}
-      />
+      {isLoadingGetProducts ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={
+            products && products.length % 2
+              ? [...products, {} as ProductDTO]
+              : products
+          }
+          keyExtractor={(item, index) => (item.id ? item.id : index.toString())}
+          renderItem={({ item }) =>
+            item.id ? (
+              <CardAdvertisements
+                product={item}
+                onNavigate={() =>
+                  navigationStack.navigate('detailsAdvertisement')
+                }
+              />
+            ) : (
+              <VStack flex={1}></VStack>
+            )
+          }
+          numColumns={2}
+          columnWrapperStyle={{
+            gap: 20,
+            paddingBottom: 24
+          }}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+            <Text
+              fontFamily="body"
+              fontSize="sm"
+              color="gray.100"
+              textAlign="center"
+            >
+              Nenhum anúncio encontrado.
+            </Text>
+          )}
+          contentContainerStyle={
+            products.length === 0 && {
+              flex: 1,
+              justifyContent: 'center'
+            }
+          }
+        />
+      )}
     </VStack>
   )
 }

@@ -115,16 +115,24 @@ export function MyAdvertisements() {
         <Loading />
       ) : (
         <FlatList
-          data={myProductsFiltered}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <CardAdvertisements
-              product={item}
-              onNavigate={() =>
-                navigatorStack.navigate('detailsMyAdvertisement')
-              }
-            />
-          )}
+          data={
+            myProductsFiltered && myProductsFiltered.length % 2
+              ? [...myProductsFiltered, {} as ProductDTO]
+              : myProductsFiltered
+          }
+          keyExtractor={(item, index) => (item.id ? item.id : index.toString())}
+          renderItem={({ item }) =>
+            item.id ? (
+              <CardAdvertisements
+                product={item}
+                onNavigate={() =>
+                  navigatorStack.navigate('detailsMyAdvertisement')
+                }
+              />
+            ) : (
+              <VStack flex={1}></VStack>
+            )
+          }
           numColumns={2}
           columnWrapperStyle={{
             gap: 20,
