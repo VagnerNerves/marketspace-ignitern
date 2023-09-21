@@ -1,8 +1,9 @@
-import { ReactNode, createContext, useState } from 'react'
+import { ReactNode, SetStateAction, createContext, useState } from 'react'
 
 import { api } from '@services/api'
 
 import { ProductDTO } from '@dtos/ProductDTO'
+import { PaymentMethodDTO } from '@dtos/PaymentMethodDTO'
 
 type MyTotProductsProps = {
   totProducts: number
@@ -10,11 +11,25 @@ type MyTotProductsProps = {
   totProductsIsNotActive: number
 }
 
+type FilterProductsProps = {
+  searchNameProduct: string
+  isNew: boolean
+  isUsed: boolean
+  acceptTrade: boolean
+  paymentMethods: PaymentMethodDTO[]
+}
+
 type ProductContextDataProps = {
   myProducts: ProductDTO[]
   myTotProducts: MyTotProductsProps
   getMyProducts: () => Promise<void>
   isLoadingGetMyProducts: boolean
+
+  products: ProductDTO[]
+  getProducts: () => Promise<void>
+  setFilteredProducts: (value: SetStateAction<FilterProductsProps>) => void
+  filteredProducts: FilterProductsProps
+  isLoadingGetProducts: boolean
 }
 
 export const ProductContext = createContext<ProductContextDataProps>(
@@ -33,6 +48,13 @@ export function ProductContextProvider({
     {} as MyTotProductsProps
   )
   const [isLoadingGetMyProducts, setIsLoadingGetMyProducts] =
+    useState<boolean>(true)
+
+  const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[])
+  const [filteredProducts, setFilteredProducts] = useState<FilterProductsProps>(
+    {} as FilterProductsProps
+  )
+  const [isLoadingGetProducts, setIsLoadingGetProducts] =
     useState<boolean>(true)
 
   function totalizedMyProducts(products: ProductDTO[]) {
@@ -69,13 +91,64 @@ export function ProductContextProvider({
     }
   }
 
+  async function getProducts() {
+    try {
+      setIsLoadingGetProducts(true)
+
+      const parameterQuery =
+        filteredProducts.searchNameProduct &&
+        filteredProducts.searchNameProduct.trim() !== ''
+          ? `query=${filteredProducts.searchNameProduct.trim()}&`
+          : ''
+
+      const isNew = !!filteredProducts.isNew
+      const isUsed = !!filteredProducts.isUsed
+      const isMarkedNewAndUsed = isNew === isUsed
+      const parameterIsNew: string = isMarkedNewAndUsed
+        ? ''
+        : `is_new=${isNew ? true : false}&`
+
+      const parameterAcceptTrade = !!filteredProducts.acceptTrade
+        ? `accept_trade=true&`
+        : ''
+
+      const parameterPaymentMethods: string = filteredProducts.paymentMethods
+        ? filteredProducts.paymentMethods.reduce((newValue, currentValue) => {
+            newValue = newValue + `payment_methods=${currentValue.key}&`
+            return newValue
+          }, '')
+        : ''
+
+      const { data } = await api.get(
+        `/products?${parameterQuery}${parameterIsNew}${parameterAcceptTrade}${parameterPaymentMethods}`
+      )
+      const productsData: ProductDTO[] = data
+
+      const productsComplete = productsData.map(value => {
+        return { ...value, is_active: true }
+      })
+
+      setProducts(productsComplete)
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoadingGetProducts(false)
+    }
+  }
+
   return (
     <ProductContext.Provider
       value={{
         myProducts,
         myTotProducts,
         getMyProducts,
-        isLoadingGetMyProducts
+        isLoadingGetMyProducts,
+
+        products,
+        getProducts,
+        setFilteredProducts,
+        filteredProducts,
+        isLoadingGetProducts
       }}
     >
       {children}
