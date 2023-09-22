@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import { ProductDTO } from '@dtos/ProductDTO'
 import { api } from '@services/api'
 import { useAuth } from '@hooks/useAuth'
-import { formattedNumberForRealBRL } from '@utils/validationAndFormattedNumberForRealt'
+import { formattedNumberForRealBRL } from '@utils/validationAndFormattedNumberForReal'
 
 interface CardAdvertisementsProps {
   product: ProductDTO
