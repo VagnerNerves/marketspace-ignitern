@@ -1,39 +1,59 @@
 import { HStack, ScrollView, Text, VStack } from 'native-base'
 
+import { api } from '@services/api'
+import { ProductDTO } from '@dtos/ProductDTO'
+
+import { formattedNumberForRealBRL } from '@utils/validationAndFormattedNumberForReal'
+
 import { UserPhoto } from './UserPhoto'
 import { Tag } from './Tag'
 import { PaymentMethod } from './PaymentMethod'
 import { MyCarousel } from './MyCarousel'
+import { PaymentMethodKeyProps } from '@dtos/PaymentMethodDTO'
 
-export function ContentAdvertisement() {
+interface ContentAdvertisementProps {
+  product: ProductDTO
+}
+
+export function ContentAdvertisement({ product }: ContentAdvertisementProps) {
+  const productImages = product.product_images
+    ? product.product_images.reduce((newValue: string[], value) => {
+        newValue.push(`${api.defaults.baseURL}/images/${value.path}`)
+
+        return newValue
+      }, [])
+    : []
+
   return (
     <ScrollView>
       <VStack flex={1}>
         <VStack>
-          <MyCarousel
-            data={[
-              'https://cdn.dooca.store/19586/products/s3.jpg?v=1648733585&webp=0',
-              'https://images-americanas.b2w.io/produtos/4085781669/imagens/bicicleta-aro-29-absolute-mtb-nero-azul/4085781853_1_large.jpg',
-              'https://http2.mlstatic.com/D_NQ_NP_833105-MLB49306431123_032022-O.webp'
-            ]}
-            height={280}
-            active={false}
-          />
+          {productImages && (
+            <MyCarousel
+              data={productImages}
+              height={280}
+              active={product.is_active ? true : false}
+            />
+          )}
         </VStack>
         <VStack px={6} paddingTop={5} paddingBottom={6} space={6}>
           <HStack alignItems="center" space={2}>
             <UserPhoto
               size={24}
               borderWidth={2}
-              url="https://github.com/VagnerNerves.png"
+              url={
+                product.user
+                  ? `${api.defaults.baseURL}/images/${product.user.avatar}`
+                  : undefined
+              }
             />
             <Text fontFamily="body" fontSize="sm" color="gray.100">
-              Vagner Nerves
+              {product.user ? product.user.name : ''}
             </Text>
           </HStack>
 
           <VStack space={2}>
-            <Tag type="new" />
+            <Tag type={product.is_new ? 'new' : 'used'} />
 
             <HStack alignItems="center" justifyContent="space-between">
               <Text
@@ -42,10 +62,11 @@ export function ContentAdvertisement() {
                 fontSize="xl"
                 color="gray.100"
               >
-                Bicicleta
+                {product.name}
               </Text>
               <Text fontFamily="heading" fontSize="xl" color="blue.400">
-                <Text fontSize="sm">R$</Text> 120,00
+                <Text fontSize="sm">R$</Text>{' '}
+                {formattedNumberForRealBRL(product.price)}
               </Text>
             </HStack>
 
@@ -55,16 +76,16 @@ export function ContentAdvertisement() {
               color="gray.200"
               lineHeight="18.2"
             >
-              Cras congue cursus in tortor sagittis placerat nunc, tellus arcu.
-              Vitae ante leo eget maecenas urna mattis cursus. Mauris metus amet
-              nibh mauris mauris accumsan, euismod. Aenean leo nunc, purus
-              iaculis in aliquam.
+              {product.description}
             </Text>
           </VStack>
 
           <VStack space={4}>
             <Text fontFamily="heading" fontSize="sm" color="gray.200">
-              Aceita troca? <Text fontFamily="body">Sim</Text>
+              Aceita troca?{' '}
+              <Text fontFamily="body">
+                {product.accept_trade ? 'Sim' : 'Não'}
+              </Text>
             </Text>
 
             <VStack space={2}>
@@ -73,14 +94,14 @@ export function ContentAdvertisement() {
               </Text>
 
               <VStack space={1}>
-                <PaymentMethod title="Boleto" iconPayment="barCode" />
-                <PaymentMethod title="PIX" iconPayment="qrCode" />
-                <PaymentMethod title="Dinheiro" iconPayment="money" />
-                <PaymentMethod
-                  title="Cartão de Crédito"
-                  iconPayment="creditCard"
-                />
-                <PaymentMethod title="Depósito Bancário" iconPayment="bank" />
+                {product.payment_methods &&
+                  product.payment_methods.map(payment_Method => (
+                    <PaymentMethod
+                      key={payment_Method.key}
+                      title={payment_Method.name}
+                      iconPayment={payment_Method.key as PaymentMethodKeyProps}
+                    />
+                  ))}
               </VStack>
             </VStack>
           </VStack>
