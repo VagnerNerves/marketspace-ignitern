@@ -166,7 +166,9 @@ export function Home() {
               <CardAdvertisements
                 product={item}
                 onNavigate={() =>
-                  navigationStack.navigate('detailsAdvertisement')
+                  navigationStack.navigate('detailsAdvertisement', {
+                    id: item.id
+                  })
                 }
               />
             ) : (

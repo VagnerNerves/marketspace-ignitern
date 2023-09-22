@@ -126,7 +126,9 @@ export function MyAdvertisements() {
               <CardAdvertisements
                 product={item}
                 onNavigate={() =>
-                  navigatorStack.navigate('detailsMyAdvertisement')
+                  navigatorStack.navigate('detailsMyAdvertisement', {
+                    id: item.id
+                  })
                 }
               />
             ) : (
