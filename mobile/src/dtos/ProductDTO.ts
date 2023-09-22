@@ -11,6 +11,6 @@ export type ProductDTO = {
   accept_trade: boolean
   is_active: boolean
   product_images: ProductImageDTO[]
-  payment_metods: PaymentMethodDTO[]
+  payment_methods: PaymentMethodDTO[]
   user: UserDTO
 }
