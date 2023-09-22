@@ -27,7 +27,7 @@ type BottomRoutes = {
 
 type NativeStackRoutes = {
   homeBottom: BottomRoutes
-  detailsAdvertisement: undefined
+  detailsAdvertisement: { id: string }
   detailsMyAdvertisement: undefined
   createAdvertisement: undefined
 }
