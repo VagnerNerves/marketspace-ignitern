@@ -32,29 +32,27 @@ export function MyAdvertisements() {
   const [filterAdvertisements, setFilterAdvertisements] =
     useState<FilterAdvertisementsProps>('all')
 
-  useFocusEffect(
-    useCallback(() => {
-      try {
-        setIsLoading(true)
-        getMyProducts()
-      } catch (error) {
-        const isAppError = error instanceof AppError
-        const messageError = isAppError
-          ? error.message
-          : 'Não foi possível buscar seus anúncios. Tente novamente mais tarde.'
+  async function fetchGetMyProducts() {
+    try {
+      setIsLoading(true)
+      await getMyProducts()
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const messageError = isAppError
+        ? error.message
+        : 'Não foi possível buscar seus anúncios. Tente novamente mais tarde.'
 
-        toast.show({
-          title: messageError,
-          placement: 'top',
-          bgColor: 'error.600'
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }, [])
-  )
+      toast.show({
+        title: messageError,
+        placement: 'top',
+        bgColor: 'error.600'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  useEffect(() => {
+  function filteredMyProducts() {
     if (filterAdvertisements === 'all') {
       setMyTotProductsFiltered(myProducts.length)
       setMyProductsFiltered(myProducts)
@@ -71,7 +69,17 @@ export function MyAdvertisements() {
       setMyTotProductsFiltered(filtered.length)
       setMyProductsFiltered(filtered)
     }
-  }, [filterAdvertisements])
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchGetMyProducts()
+    }, [])
+  )
+
+  useEffect(() => {
+    filteredMyProducts()
+  }, [filterAdvertisements, myProducts])
 
   return (
     <VStack px={6} paddingTop={16} flex={1}>
