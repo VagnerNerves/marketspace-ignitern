@@ -1,29 +1,31 @@
 import { HStack, Text, useTheme } from 'native-base'
 
+import { PaymentMethodKeyProps } from '@dtos/PaymentMethodDTO'
+
 import { Barcode, QrCode, Bank, Money, CreditCard } from 'phosphor-react-native'
 
 interface PaymentMethodProps {
   title: string
-  iconPayment: 'barCode' | 'qrCode' | 'bank' | 'money' | 'creditCard'
+  iconPayment: PaymentMethodKeyProps
 }
 export function PaymentMethod({ title, iconPayment }: PaymentMethodProps) {
   const { colors } = useTheme()
 
   return (
     <HStack space={2} alignItems="center">
-      {iconPayment === 'barCode' && (
+      {iconPayment === 'boleto' && (
         <Barcode weight="regular" size={18} color={colors.gray[100]} />
       )}
-      {iconPayment === 'qrCode' && (
+      {iconPayment === 'pix' && (
         <QrCode weight="regular" size={18} color={colors.gray[100]} />
       )}
-      {iconPayment === 'money' && (
+      {iconPayment === 'cash' && (
         <Money weight="regular" size={18} color={colors.gray[100]} />
       )}
-      {iconPayment === 'creditCard' && (
+      {iconPayment === 'card' && (
         <CreditCard weight="regular" size={18} color={colors.gray[100]} />
       )}
-      {iconPayment === 'bank' && (
+      {iconPayment === 'deposit' && (
         <Bank weight="regular" size={18} color={colors.gray[100]} />
       )}
 
