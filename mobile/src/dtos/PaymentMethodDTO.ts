@@ -3,6 +3,13 @@ export type PaymentMethodDTO = {
   name: string
 }
 
+export type PaymentMethodKeyProps =
+  | 'boleto'
+  | 'pix'
+  | 'cash'
+  | 'card'
+  | 'deposit'
+
 export const paymentMethodsDB: PaymentMethodDTO[] = [
   {
     key: 'boleto',
