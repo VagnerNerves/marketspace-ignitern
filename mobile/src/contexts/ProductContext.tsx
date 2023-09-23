@@ -30,6 +30,14 @@ type ProductContextDataProps = {
   setFilteredProducts: (value: SetStateAction<FilterProductsProps>) => void
   filteredProducts: FilterProductsProps
   isLoadingGetProducts: boolean
+
+  product: ProductDTO
+  getProduct: (id: string) => Promise<void>
+  updateProductForActiveOrInactive: (
+    id: string,
+    isActive: boolean
+  ) => Promise<void>
+  deleteProduct: (id: string) => Promise<void>
 }
 
 export const ProductContext = createContext<ProductContextDataProps>(
@@ -56,6 +64,8 @@ export function ProductContextProvider({
   )
   const [isLoadingGetProducts, setIsLoadingGetProducts] =
     useState<boolean>(true)
+
+  const [product, setProduct] = useState<ProductDTO>({} as ProductDTO)
 
   function totalizedMyProducts(products: ProductDTO[]) {
     const { totActive, totInactive } = products.reduce(
@@ -136,6 +146,39 @@ export function ProductContextProvider({
     }
   }
 
+  async function getProduct(id: string) {
+    try {
+      const { data } = await api.get(`/products/${id}`)
+
+      setProduct(data)
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async function updateProductForActiveOrInactive(
+    id: string,
+    isActive: boolean
+  ) {
+    try {
+      await api.patch(`/products/${id}`, {
+        is_active: isActive
+      })
+
+      await getProduct(id)
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async function deleteProduct(id: string) {
+    try {
+      await api.delete(`/products/${id}`)
+    } catch (error) {
+      throw error
+    }
+  }
+
   return (
     <ProductContext.Provider
       value={{
@@ -148,7 +191,12 @@ export function ProductContextProvider({
         getProducts,
         setFilteredProducts,
         filteredProducts,
-        isLoadingGetProducts
+        isLoadingGetProducts,
+
+        product,
+        getProduct,
+        updateProductForActiveOrInactive,
+        deleteProduct
       }}
     >
       {children}
