@@ -1,13 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Platform } from 'react-native'
 
 import {
+  FormControl,
   HStack,
   KeyboardAvoidingView,
   ScrollView,
   Text,
   VStack
 } from 'native-base'
+
+import { useForm, Controller } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
 import { useNavigation } from '@react-navigation/native'
 import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
@@ -20,32 +25,86 @@ import { Radio } from '@components/Radio'
 import { Switch } from '@components/Switch'
 import { Checkbox } from '@components/Checkbox'
 import { ContentAdvertisement } from '@components/ContentAdvertisement'
+import { ProductDTO } from '@dtos/ProductDTO'
+import { PaymentMethodKeyProps, paymentMethodsDB } from '@dtos/PaymentMethodDTO'
+
+const paymentMethodOptions = paymentMethodsDB.map(method => method.key)
+
+const createdAdvertisementSchema = yup.object({
+  images: yup
+    .array()
+    .of(
+      yup.object({
+        uri: yup.string(),
+        id: yup.string()
+      })
+    )
+    .min(1, 'Informe uma Imagem.')
+    .required('Informe uma Imagem.'),
+  name: yup.string().required('Informe o título do anúncio.'),
+  description: yup.string().required('Informe a descrição do produto.'),
+  IsNewOrUsed: yup
+    .string()
+    .oneOf(['', 'new', 'used'])
+    .required('Informe se o produto é novo ou usado.'),
+  price: yup.number().required('Informe o valor do produto.'),
+  acceptTrade: yup.boolean().default(false),
+  methodPayments: yup
+    .array()
+    .of(yup.string().oneOf(paymentMethodOptions))
+    .required('Selecione um meio de pagamento.')
+})
+
+type FormDataProps = yup.InferType<typeof createdAdvertisementSchema>
 
 export function CreateAdvertisement() {
   const [preview, setPreview] = useState(false)
-  const [acceptExchange, setAcceptExchange] = useState(false)
-  const [selectedTicket, setSelectedTicket] = useState(false)
-  const [selectedPix, setSelectedPix] = useState(false)
-  const [selectedCash, setSelectedCash] = useState(false)
-  const [selectedCreditCard, setSelectedCreditCard] = useState(false)
-  const [selectedBankDeposit, setSelectedBankDeposit] = useState(false)
-
-  const [images, setImages] = useState<ImageSelectProps[] | null>(null)
-  const isDataImages = !!images
 
   const navigationStack = useNavigation<AppStackNavigatorRoutesProps>()
 
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    setValue,
+    trigger,
+    reset,
+    formState: { errors }
+  } = useForm<FormDataProps>({
+    resolver: yupResolver(createdAdvertisementSchema)
+  })
+
   function handleAddImage(data: ImageSelectProps) {
-    setImages(current => (!!current ? [...current, data] : [data]))
+    const imagesDataForm = getValues().images
+    const newImageSelect = { uri: data.uri }
+
+    setValue(
+      'images',
+      !!imagesDataForm ? [...imagesDataForm, newImageSelect] : [newImageSelect]
+    )
+    trigger('images')
   }
 
   function handleDeleteImage(uriImage: string) {
-    if (isDataImages) {
-      const dataImages = images.filter(image => image.uri !== uriImage)
+    const imagesDataForm = getValues().images
 
-      setImages(dataImages)
+    if (!!imagesDataForm) {
+      const dataImages = imagesDataForm.filter(image => image.uri !== uriImage)
+
+      setValue('images', dataImages)
+      trigger('images')
     }
   }
+
+  useEffect(() => {
+    // reset({
+    //   ...getValues(),
+    //   images: [
+    //     { id: '', uri: '' },
+    //     { id: '', uri: '' }
+    //   ]
+    // })
+  }, [])
 
   if (preview) {
     return (
@@ -65,9 +124,7 @@ export function CreateAdvertisement() {
           </Text>
         </VStack>
 
-        <VStack flex={1}>
-          <ContentAdvertisement />
-        </VStack>
+        <VStack flex={1}>{/* <ContentAdvertisement /> */}</VStack>
 
         <HStack bg="gray.700" px={6} paddingTop={5} paddingBottom={7} space={3}>
           <Button
@@ -121,51 +178,96 @@ export function CreateAdvertisement() {
                   incrível!
                 </Text>
               </VStack>
-              <HStack space={2}>
-                {isDataImages &&
-                  images.map((dataImage, index) => {
-                    return (
-                      <SelectImage
-                        key={index}
-                        urlImage={dataImage.uri}
-                        onDeleteImage={handleDeleteImage}
-                      />
-                    )
-                  })}
 
-                {(!isDataImages || images.length < 3) && (
-                  <SelectImage onAddImage={handleAddImage} />
+              <Controller
+                control={control}
+                name="images"
+                render={({ field: { value } }) => (
+                  <HStack space={2}>
+                    {!!value &&
+                      value.map((dataImage, index) => {
+                        return (
+                          <SelectImage
+                            key={index}
+                            urlImage={dataImage.uri}
+                            onDeleteImage={handleDeleteImage}
+                          />
+                        )
+                      })}
+
+                    {(!value || value.length < 3) && (
+                      <SelectImage onAddImage={handleAddImage} />
+                    )}
+                  </HStack>
                 )}
-              </HStack>
+              />
+              <FormControl isInvalid={!!errors.images?.message}>
+                <FormControl.ErrorMessage _text={{ color: 'error.600' }}>
+                  {errors.images?.message}
+                </FormControl.ErrorMessage>
+              </FormControl>
             </VStack>
 
             <VStack space={4}>
               <Text fontFamily="heading" fontSize="md" color="gray.200">
                 Sobre o produto
               </Text>
-              <Input
-                type="text"
-                inputProps={{ placeholder: 'Título do anúncio' }}
-              />
-              <Input
-                type="text"
-                inputProps={{
-                  placeholder: 'Descrição do Produto',
-                  height: '160px',
-                  textAlignVertical: 'top'
-                }}
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    type="text"
+                    inputProps={{
+                      placeholder: 'Título do anúncio',
+                      value: value,
+                      onChangeText: onChange
+                    }}
+                    errorMessage={errors.name?.message}
+                  />
+                )}
               />
 
-              <Radio
-                radioGroupProps={{
-                  name: 'radioCreateAdvertisement'
-                  //value: variavel,
-                  //onChange: () => null
-                }}
-                options={[
-                  { value: 'newProduct', text: 'Produto novo' },
-                  { value: 'usedProduct', text: 'Produto usado' }
-                ]}
+              <Controller
+                control={control}
+                name="description"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    type="text"
+                    inputProps={{
+                      placeholder: 'Descrição do Produto',
+                      height: '160px',
+                      textAlignVertical: 'top',
+                      value: value,
+                      onChangeText: onChange
+                    }}
+                    errorMessage={errors.description?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="IsNewOrUsed"
+                defaultValue=""
+                render={({ field: { onChange, value } }) => (
+                  <>
+                    <Radio
+                      radioGroupProps={{
+                        name: 'radioCreateAdvertisement',
+                        value: value?.toString(),
+                        onChange: nextValue => {
+                          onChange(nextValue)
+                        }
+                      }}
+                      options={[
+                        { value: 'new', text: 'Produto novo' },
+                        { value: 'used', text: 'Produto usado' }
+                      ]}
+                      errorMessage={errors.IsNewOrUsed?.message}
+                    />
+                  </>
+                )}
               />
             </VStack>
 
@@ -173,19 +275,39 @@ export function CreateAdvertisement() {
               <Text fontFamily="heading" fontSize="md" color="gray.200">
                 Venda
               </Text>
-              <Input
-                type="price"
-                inputProps={{
-                  placeholder: 'Valor do produto'
-                }}
+
+              <Controller
+                control={control}
+                name="price"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    type="price"
+                    inputProps={{
+                      placeholder: 'Valor do produto',
+                      value: value ? value.toString() : '',
+                      onChangeText: text => {
+                        onChange(text === '' ? undefined : text)
+                      }
+                    }}
+                    errorMessage={errors.price?.message}
+                  />
+                )}
               />
 
               <Text fontFamily="heading" fontSize="sm" color="gray.200">
                 Aceita troca?
               </Text>
-              <Switch
-                value={acceptExchange}
-                onValueChange={() => setAcceptExchange(prevState => !prevState)}
+
+              <Controller
+                control={control}
+                name="acceptTrade"
+                defaultValue={false}
+                render={({ field: { onChange, value } }) => (
+                  <Switch
+                    value={value}
+                    onValueChange={() => onChange(!value)}
+                  />
+                )}
               />
 
               <VStack space={3}>
@@ -194,43 +316,52 @@ export function CreateAdvertisement() {
                 </Text>
 
                 <VStack space={2}>
-                  <Checkbox
-                    title="Boleto"
-                    value={selectedTicket}
-                    onValueChange={() =>
-                      setSelectedTicket(prevState => !prevState)
-                    }
-                  />
-                  <Checkbox
-                    title="Pix"
-                    value={selectedPix}
-                    onValueChange={() =>
-                      setSelectedPix(prevState => !prevState)
-                    }
-                  />
-                  <Checkbox
-                    title="Dinheiro"
-                    value={selectedCash}
-                    onValueChange={() =>
-                      setSelectedCash(prevState => !prevState)
-                    }
-                  />
+                  {paymentMethodsDB.map(paymentMethod => (
+                    <Controller
+                      key={paymentMethod.key}
+                      control={control}
+                      name="methodPayments"
+                      render={({ field: { onChange, value } }) => (
+                        <Checkbox
+                          title={paymentMethod.name}
+                          value={
+                            !!value
+                              ? value.indexOf(paymentMethod.key) === -1
+                                ? false
+                                : true
+                              : false
+                          }
+                          onValueChange={() => {
+                            let isKeyOnObject = false
+                            let indexObject = -1
 
-                  <Checkbox
-                    title="Cartão de Crédito"
-                    value={selectedCreditCard}
-                    onValueChange={() =>
-                      setSelectedCreditCard(prevState => !prevState)
-                    }
-                  />
+                            if (!!value) {
+                              indexObject = value.indexOf(paymentMethod.key)
+                              isKeyOnObject = indexObject !== -1
+                            }
 
-                  <Checkbox
-                    title="Depósito Bancário"
-                    value={selectedBankDeposit}
-                    onValueChange={() =>
-                      setSelectedBankDeposit(prevState => !prevState)
-                    }
-                  />
+                            if (isKeyOnObject) {
+                              value.splice(indexObject, 1)
+
+                              onChange(value.length === 0 ? undefined : value)
+                            } else {
+                              onChange(
+                                !!value
+                                  ? [...value, paymentMethod.key]
+                                  : [paymentMethod.key]
+                              )
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  ))}
+
+                  <FormControl isInvalid={!!errors.methodPayments?.message}>
+                    <FormControl.ErrorMessage _text={{ color: 'error.600' }}>
+                      {errors.methodPayments?.message}
+                    </FormControl.ErrorMessage>
+                  </FormControl>
                 </VStack>
               </VStack>
             </VStack>
@@ -260,7 +391,7 @@ export function CreateAdvertisement() {
           typeColor="black"
           buttonProps={{
             flex: 1,
-            onPress: () => setPreview(true)
+            onPress: handleSubmit(() => setPreview(true))
           }}
         />
       </HStack>
