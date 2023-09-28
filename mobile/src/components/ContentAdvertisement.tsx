@@ -1,7 +1,7 @@
 import { HStack, ScrollView, Text, VStack } from 'native-base'
 
 import { api } from '@services/api'
-import { ProductDTO } from '@dtos/ProductDTO'
+import { PaymentMethodDTO, PaymentMethodKeyProps } from '@dtos/PaymentMethodDTO'
 
 import { formattedNumberForRealBRL } from '@utils/validationAndFormattedNumberForReal'
 
@@ -9,30 +9,37 @@ import { UserPhoto } from './UserPhoto'
 import { Tag } from './Tag'
 import { PaymentMethod } from './PaymentMethod'
 import { MyCarousel } from './MyCarousel'
-import { PaymentMethodKeyProps } from '@dtos/PaymentMethodDTO'
 
 interface ContentAdvertisementProps {
-  product: ProductDTO
+  product: {
+    name: string
+    description: string
+    price: number
+    acceptTrade: boolean
+    isNew: boolean
+    isActive: boolean
+    images: string[]
+    paymentMethods: PaymentMethodDTO[]
+  }
+  user: {
+    avatar: string
+    name: string
+  }
 }
 
-export function ContentAdvertisement({ product }: ContentAdvertisementProps) {
-  const productImages = product.product_images
-    ? product.product_images.reduce((newValue: string[], value) => {
-        newValue.push(`${api.defaults.baseURL}/images/${value.path}`)
-
-        return newValue
-      }, [])
-    : []
-
+export function ContentAdvertisement({
+  product,
+  user
+}: ContentAdvertisementProps) {
   return (
     <ScrollView>
       <VStack flex={1}>
         <VStack>
-          {productImages && (
+          {product.images && product.images.length > 0 && (
             <MyCarousel
-              data={productImages}
+              data={product.images}
               height={280}
-              active={product.is_active ? true : false}
+              active={product.isActive ? true : false}
             />
           )}
         </VStack>
@@ -42,18 +49,18 @@ export function ContentAdvertisement({ product }: ContentAdvertisementProps) {
               size={24}
               borderWidth={2}
               url={
-                product.user
-                  ? `${api.defaults.baseURL}/images/${product.user.avatar}`
+                user
+                  ? `${api.defaults.baseURL}/images/${user.avatar}`
                   : undefined
               }
             />
             <Text fontFamily="body" fontSize="sm" color="gray.100">
-              {product.user ? product.user.name : ''}
+              {user ? user.name : ''}
             </Text>
           </HStack>
 
           <VStack space={2}>
-            <Tag type={product.is_new ? 'new' : 'used'} />
+            <Tag type={product.isNew ? 'new' : 'used'} />
 
             <HStack alignItems="center" justifyContent="space-between">
               <Text
@@ -84,7 +91,7 @@ export function ContentAdvertisement({ product }: ContentAdvertisementProps) {
             <Text fontFamily="heading" fontSize="sm" color="gray.200">
               Aceita troca?{' '}
               <Text fontFamily="body">
-                {product.accept_trade ? 'Sim' : 'Não'}
+                {product.acceptTrade ? 'Sim' : 'Não'}
               </Text>
             </Text>
 
@@ -94,8 +101,8 @@ export function ContentAdvertisement({ product }: ContentAdvertisementProps) {
               </Text>
 
               <VStack space={1}>
-                {product.payment_methods &&
-                  product.payment_methods.map(payment_Method => (
+                {product.paymentMethods &&
+                  product.paymentMethods.map(payment_Method => (
                     <PaymentMethod
                       key={payment_Method.key}
                       title={payment_Method.name}
