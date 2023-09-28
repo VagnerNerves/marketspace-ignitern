@@ -27,6 +27,7 @@ import { Checkbox } from '@components/Checkbox'
 import { ContentAdvertisement } from '@components/ContentAdvertisement'
 import { ProductDTO } from '@dtos/ProductDTO'
 import { PaymentMethodKeyProps, paymentMethodsDB } from '@dtos/PaymentMethodDTO'
+import { useAuth } from '@hooks/useAuth'
 
 const paymentMethodOptions = paymentMethodsDB.map(method => method.key)
 
@@ -35,7 +36,7 @@ const createdAdvertisementSchema = yup.object({
     .array()
     .of(
       yup.object({
-        uri: yup.string(),
+        uri: yup.string().required(),
         id: yup.string()
       })
     )
@@ -51,7 +52,13 @@ const createdAdvertisementSchema = yup.object({
   acceptTrade: yup.boolean().default(false),
   methodPayments: yup
     .array()
-    .of(yup.string().oneOf(paymentMethodOptions))
+    .of(
+      yup.object({
+        key: yup.string().required().oneOf(paymentMethodOptions),
+        name: yup.string().required()
+      })
+    )
+    .min(1, 'Selecione um meio de pagamento.')
     .required('Selecione um meio de pagamento.')
 })
 
@@ -59,6 +66,8 @@ type FormDataProps = yup.InferType<typeof createdAdvertisementSchema>
 
 export function CreateAdvertisement() {
   const [preview, setPreview] = useState(false)
+
+  const { user } = useAuth()
 
   const navigationStack = useNavigation<AppStackNavigatorRoutesProps>()
 
@@ -96,6 +105,30 @@ export function CreateAdvertisement() {
     }
   }
 
+  function handleAddOrRemoveMethodPayment(
+    key: PaymentMethodKeyProps,
+    name: string
+  ) {
+    const methodPaymentsDataForm = getValues('methodPayments')
+    const newMethodPayment = { key, name }
+
+    if (!!methodPaymentsDataForm) {
+      const methodPaymentRemove = methodPaymentsDataForm.filter(
+        method => method.key !== newMethodPayment.key
+      )
+
+      if (methodPaymentRemove.length !== methodPaymentsDataForm.length) {
+        setValue('methodPayments', [...methodPaymentRemove])
+      } else {
+        setValue('methodPayments', [...methodPaymentRemove, newMethodPayment])
+      }
+    } else {
+      setValue('methodPayments', [newMethodPayment])
+    }
+
+    trigger('methodPayments')
+  }
+
   useEffect(() => {
     // reset({
     //   ...getValues(),
@@ -124,7 +157,21 @@ export function CreateAdvertisement() {
           </Text>
         </VStack>
 
-        <VStack flex={1}>{/* <ContentAdvertisement /> */}</VStack>
+        <VStack flex={1}>
+          <ContentAdvertisement
+            product={{
+              name: getValues().name,
+              description: getValues().description,
+              price: getValues().price,
+              acceptTrade: getValues().acceptTrade,
+              isNew: getValues().IsNewOrUsed === 'new',
+              isActive: true,
+              images: getValues().images.map(image => image.uri),
+              paymentMethods: getValues().methodPayments
+            }}
+            user={user}
+          />
+        </VStack>
 
         <HStack bg="gray.700" px={6} paddingTop={5} paddingBottom={7} space={3}>
           <Button
@@ -326,32 +373,19 @@ export function CreateAdvertisement() {
                           title={paymentMethod.name}
                           value={
                             !!value
-                              ? value.indexOf(paymentMethod.key) === -1
+                              ? value.filter(
+                                  payment => payment.key === paymentMethod.key
+                                ).length === 0
                                 ? false
                                 : true
                               : false
                           }
-                          onValueChange={() => {
-                            let isKeyOnObject = false
-                            let indexObject = -1
-
-                            if (!!value) {
-                              indexObject = value.indexOf(paymentMethod.key)
-                              isKeyOnObject = indexObject !== -1
-                            }
-
-                            if (isKeyOnObject) {
-                              value.splice(indexObject, 1)
-
-                              onChange(value.length === 0 ? undefined : value)
-                            } else {
-                              onChange(
-                                !!value
-                                  ? [...value, paymentMethod.key]
-                                  : [paymentMethod.key]
-                              )
-                            }
-                          }}
+                          onValueChange={() =>
+                            handleAddOrRemoveMethodPayment(
+                              paymentMethod.key as PaymentMethodKeyProps,
+                              paymentMethod.name
+                            )
+                          }
                         />
                       )}
                     />
