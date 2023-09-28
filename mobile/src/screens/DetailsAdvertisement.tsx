@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Alert, Linking } from 'react-native'
 import { VStack, Text, HStack, useToast } from 'native-base'
 
+import { api } from '@services/api'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
+import { useAuth } from '@hooks/useAuth'
 import { useProduct } from '@hooks/useProduct'
 
 import { AppError } from '@utils/AppError'
@@ -12,7 +15,6 @@ import { HeaderNavigation } from '@components/HeaderNavigation'
 import { Button } from '@components/Button'
 import { ContentAdvertisement } from '@components/ContentAdvertisement'
 import { Loading } from '@components/Loading'
-import { Alert, Linking } from 'react-native'
 
 type RouteParamsProps = {
   id: string
@@ -20,8 +22,9 @@ type RouteParamsProps = {
 
 export function DetailsAdvertisement() {
   const [isLoadingGetProduct, setIsLoadingGetProduct] = useState<boolean>(true)
-
+  const { user } = useAuth()
   const { product, getProduct } = useProduct()
+
   const route = useRoute()
   const navigate = useNavigation()
   const toast = useToast()
@@ -77,7 +80,23 @@ export function DetailsAdvertisement() {
       ) : (
         <>
           <VStack flex={1}>
-            <ContentAdvertisement product={product} />
+            <ContentAdvertisement
+              product={{
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                acceptTrade: product.accept_trade,
+                isNew: product.is_new,
+                isActive: product.is_active,
+                images: product.product_images
+                  ? product.product_images.map(
+                      image => `${api.defaults.baseURL}/images/${image.path}`
+                    )
+                  : [],
+                paymentMethods: product.payment_methods
+              }}
+              user={product.user ? product.user : user}
+            />
           </VStack>
 
           <HStack

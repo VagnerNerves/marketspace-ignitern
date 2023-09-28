@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
 import { VStack, ScrollView, useToast } from 'native-base'
 
+import { api } from '@services/api'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
+
+import { useAuth } from '@hooks/useAuth'
+
+import { AppError } from '@utils/AppError'
 
 import { HeaderNavigation } from '@components/HeaderNavigation'
 import { Button } from '@components/Button'
 import { ContentAdvertisement } from '@components/ContentAdvertisement'
 import { useProduct } from '@hooks/useProduct'
-import { AppError } from '@utils/AppError'
 import { Loading } from '@components/Loading'
 
 type RouteParamsProps = {
@@ -21,6 +25,7 @@ export function DetailsMyAdvertisement() {
     useState<boolean>(false)
   const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false)
 
+  const { user } = useAuth()
   const {
     product,
     getProduct,
@@ -114,7 +119,23 @@ export function DetailsMyAdvertisement() {
         <Loading />
       ) : (
         <ScrollView flex={1}>
-          <ContentAdvertisement product={product} />
+          <ContentAdvertisement
+            product={{
+              name: product.name,
+              description: product.description,
+              price: product.price,
+              acceptTrade: product.accept_trade,
+              isNew: product.is_new,
+              isActive: product.is_active,
+              images: product.product_images
+                ? product.product_images.map(
+                    image => `${api.defaults.baseURL}/images/${image.path}`
+                  )
+                : [],
+              paymentMethods: product.payment_methods
+            }}
+            user={product.user ? product.user : user}
+          />
 
           <VStack
             px={6}
