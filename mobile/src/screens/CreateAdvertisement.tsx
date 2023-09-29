@@ -7,7 +7,8 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Text,
-  VStack
+  VStack,
+  useToast
 } from 'native-base'
 
 import { useForm, Controller } from 'react-hook-form'
@@ -16,11 +17,12 @@ import * as yup from 'yup'
 
 import { useAuth } from '@hooks/useAuth'
 import { useNavigation } from '@react-navigation/native'
-import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
+import { AppBottomNavigatorRoutesProps } from '@routes/app.routes'
 
-import { ProductDTO } from '@dtos/ProductDTO'
+import { api } from '@services/api'
 import { PaymentMethodKeyProps, paymentMethodsDB } from '@dtos/PaymentMethodDTO'
 
+import { AppError } from '@utils/AppError'
 import {
   formattedNumberForRealBRL,
   inputOnChangeUnformattedTextToNumber
@@ -43,6 +45,7 @@ const createdAdvertisementSchema = yup.object({
     .of(
       yup.object({
         uri: yup.string().required(),
+        type: yup.string(),
         id: yup.string()
       })
     )
@@ -72,10 +75,12 @@ type FormDataProps = yup.InferType<typeof createdAdvertisementSchema>
 
 export function CreateAdvertisement() {
   const [preview, setPreview] = useState(false)
+  const [isLoadingSave, setIsLoadingSave] = useState(false)
 
   const { user } = useAuth()
+  const toast = useToast()
 
-  const navigationStack = useNavigation<AppStackNavigatorRoutesProps>()
+  const navigationStack = useNavigation<AppBottomNavigatorRoutesProps>()
 
   const {
     control,
@@ -91,7 +96,7 @@ export function CreateAdvertisement() {
 
   function handleAddImage(data: ImageSelectProps) {
     const imagesDataForm = getValues().images
-    const newImageSelect = { uri: data.uri }
+    const newImageSelect = { uri: data.uri, type: data.type }
 
     setValue(
       'images',
@@ -133,6 +138,70 @@ export function CreateAdvertisement() {
     }
 
     trigger('methodPayments')
+  }
+
+  async function handleSaveAdvertisement() {
+    try {
+      setIsLoadingSave(true)
+
+      const values = getValues()
+
+      const body = {
+        name: values.name,
+        description: values.description,
+        is_new: values.IsNewOrUsed === 'new',
+        price: parseInt(values.price.toFixed(2).replace(/\D/g, '')),
+        accept_trade: values.acceptTrade,
+        payment_methods: values.methodPayments.map(method => method.key)
+      }
+
+      const { data } = await api.post('/products', body)
+
+      const idAdvertisement = data.id
+
+      const uploadImage = new FormData()
+      uploadImage.append('product_id', idAdvertisement)
+
+      values.images.map(image => {
+        if (!!image.id === false) {
+          const fileExtension = image.uri.split('.').pop()
+          const fileName = image.uri.split('/').pop()
+
+          const photoFile = {
+            name: fileName,
+            uri: image.uri,
+            type: `${image.type}/${fileExtension}`
+          } as any
+
+          uploadImage.append('images', photoFile)
+        }
+      })
+
+      await api.post('/products/images', uploadImage, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+
+      toast.show({
+        title: 'Publicado com sucesso.',
+        placement: 'top',
+        bgColor: 'green.600'
+      })
+
+      navigationStack.navigate('myAdvertisements')
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const messageError = isAppError
+        ? error.message
+        : 'Não foi possível publicar neste momento. Tente novamente mais tarde.'
+
+      toast.show({
+        title: messageError,
+        placement: 'top',
+        bgColor: 'error.600'
+      })
+    } finally {
+      setIsLoadingSave(false)
+    }
   }
 
   useEffect(() => {
@@ -186,7 +255,8 @@ export function CreateAdvertisement() {
             typeIcon="arrowLeft"
             buttonProps={{
               flex: 1,
-              onPress: () => setPreview(false)
+              onPress: () => setPreview(false),
+              isDisabled: isLoadingSave
             }}
           />
           <Button
@@ -194,7 +264,9 @@ export function CreateAdvertisement() {
             typeColor="blue"
             typeIcon="tag"
             buttonProps={{
-              flex: 1
+              flex: 1,
+              onPress: handleSaveAdvertisement,
+              isLoading: isLoadingSave
             }}
           />
         </HStack>
