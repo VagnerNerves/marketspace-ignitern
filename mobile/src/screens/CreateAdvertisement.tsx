@@ -14,8 +14,17 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
+import { useAuth } from '@hooks/useAuth'
 import { useNavigation } from '@react-navigation/native'
 import { AppStackNavigatorRoutesProps } from '@routes/app.routes'
+
+import { ProductDTO } from '@dtos/ProductDTO'
+import { PaymentMethodKeyProps, paymentMethodsDB } from '@dtos/PaymentMethodDTO'
+
+import {
+  formattedNumberForRealBRL,
+  inputOnChangeUnformattedTextToNumber
+} from '@utils/validationAndFormattedNumberForReal'
 
 import { HeaderNavigation } from '@components/HeaderNavigation'
 import { Button } from '@components/Button'
@@ -25,9 +34,6 @@ import { Radio } from '@components/Radio'
 import { Switch } from '@components/Switch'
 import { Checkbox } from '@components/Checkbox'
 import { ContentAdvertisement } from '@components/ContentAdvertisement'
-import { ProductDTO } from '@dtos/ProductDTO'
-import { PaymentMethodKeyProps, paymentMethodsDB } from '@dtos/PaymentMethodDTO'
-import { useAuth } from '@hooks/useAuth'
 
 const paymentMethodOptions = paymentMethodsDB.map(method => method.key)
 
@@ -331,9 +337,12 @@ export function CreateAdvertisement() {
                     type="price"
                     inputProps={{
                       placeholder: 'Valor do produto',
-                      value: value ? value.toString() : '',
+                      value: value ? formattedNumberForRealBRL(value) : '',
                       onChangeText: text => {
-                        onChange(text === '' ? undefined : text)
+                        const number =
+                          inputOnChangeUnformattedTextToNumber(text)
+
+                        onChange(number)
                       }
                     }}
                     errorMessage={errors.price?.message}
