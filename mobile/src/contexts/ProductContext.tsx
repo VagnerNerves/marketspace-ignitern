@@ -5,6 +5,8 @@ import { api } from '@services/api'
 import { ProductDTO } from '@dtos/ProductDTO'
 import { PaymentMethodDTO } from '@dtos/PaymentMethodDTO'
 
+import { inputOnChangeUnformattedTextToNumber } from '@utils/validationAndFormattedNumberForReal'
+
 type MyTotProductsProps = {
   totProducts: number
   totProductsIsActive: number
@@ -92,8 +94,21 @@ export function ProductContextProvider({
 
       const { data } = await api.get('/users/products')
 
-      totalizedMyProducts(data)
-      setMyProducts(data)
+      const productsData: ProductDTO[] = data
+
+      const productsComplete: ProductDTO[] = productsData.map(product => {
+        const newPrice = inputOnChangeUnformattedTextToNumber(
+          product.price.toString()
+        )
+
+        return {
+          ...product,
+          price: newPrice ? newPrice : 0
+        }
+      })
+
+      totalizedMyProducts(productsComplete)
+      setMyProducts(productsComplete)
     } catch (error) {
       throw error
     } finally {
@@ -134,8 +149,16 @@ export function ProductContextProvider({
       )
       const productsData: ProductDTO[] = data
 
-      const productsComplete = productsData.map(value => {
-        return { ...value, is_active: true }
+      const productsComplete: ProductDTO[] = productsData.map(value => {
+        const newPrice = inputOnChangeUnformattedTextToNumber(
+          value.price.toString()
+        )
+
+        return {
+          ...value,
+          price: newPrice ? newPrice : 0,
+          is_active: true
+        }
       })
 
       setProducts(productsComplete)
@@ -150,7 +173,12 @@ export function ProductContextProvider({
     try {
       const { data } = await api.get(`/products/${id}`)
 
-      setProduct(data)
+      const productData: ProductDTO = {
+        ...data,
+        price: inputOnChangeUnformattedTextToNumber(data.price.toString())
+      }
+
+      setProduct(productData)
     } catch (error) {
       throw error
     }
