@@ -25,8 +25,7 @@ export function MyAdvertisements() {
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  const [myProductsFiltered, setMyProductsFiltered] =
-    useState<ProductDTO[]>(myProducts)
+  const [myProductsFiltered, setMyProductsFiltered] = useState<ProductDTO[]>([])
   const [myTotProductsFiltered, setMyTotProductsFiltered] = useState<number>(0)
 
   const [filterAdvertisements, setFilterAdvertisements] =
@@ -86,7 +85,9 @@ export function MyAdvertisements() {
       <HeaderNavigation
         title="Meus anúncios"
         typeButton="plus"
-        onPressButton={() => navigatorStack.navigate('createAdvertisement')}
+        onPressButton={() =>
+          navigatorStack.navigate('createAdvertisement', { id: '' })
+        }
       />
 
       {myProducts.length > 0 && (

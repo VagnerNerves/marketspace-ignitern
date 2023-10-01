@@ -114,7 +114,8 @@ export function Home() {
           typeIcon="plus"
           buttonProps={{
             width: 'auto',
-            onPress: () => navigationStack.navigate('createAdvertisement')
+            onPress: () =>
+              navigationStack.navigate('createAdvertisement', { id: '' })
           }}
         />
       </HStack>

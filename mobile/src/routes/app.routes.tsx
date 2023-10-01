@@ -29,7 +29,7 @@ type NativeStackRoutes = {
   homeBottom: BottomRoutes
   detailsAdvertisement: { id: string }
   detailsMyAdvertisement: { id: string }
-  createAdvertisement: undefined
+  createAdvertisement: { id: string }
 }
 
 export type AppStackNavigatorRoutesProps =
