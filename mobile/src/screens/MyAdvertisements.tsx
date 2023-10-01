@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 
 import { FlatList, HStack, Text, VStack, useToast } from 'native-base'
 
@@ -73,6 +73,8 @@ export function MyAdvertisements() {
   useFocusEffect(
     useCallback(() => {
       fetchGetMyProducts()
+
+      return () => setIsLoading(true)
     }, [])
   )
 
@@ -89,90 +91,99 @@ export function MyAdvertisements() {
           navigatorStack.navigate('createAdvertisement', { id: '' })
         }
       />
-
-      {myProducts.length > 0 && (
-        <HStack
-          justifyContent="space-between"
-          alignItems="center"
-          paddingTop={8}
-          paddingBottom={5}
-        >
-          <Text>
-            {myTotProductsFiltered}{' '}
-            {myTotProductsFiltered === 1 ? 'anúncio' : 'anúncios'}
-          </Text>
-
-          <Select
-            items={[
-              { label: 'Todos', value: 'all' as FilterAdvertisementsProps },
-              { label: 'Ativos', value: 'active' as FilterAdvertisementsProps },
-              {
-                label: 'Inativos',
-                value: 'inactive' as FilterAdvertisementsProps
-              }
-            ]}
-            selectProps={{
-              selectedValue: filterAdvertisements,
-              onValueChange: item =>
-                setFilterAdvertisements(item as FilterAdvertisementsProps)
-            }}
-          />
-        </HStack>
-      )}
-
       {isLoading ? (
         <Loading />
       ) : (
-        <FlatList
-          data={
-            myProductsFiltered && myProductsFiltered.length % 2
-              ? [...myProductsFiltered, {} as ProductDTO]
-              : myProductsFiltered
-          }
-          keyExtractor={(item, index) => (item.id ? item.id : index.toString())}
-          renderItem={({ item }) =>
-            item.id ? (
-              <CardAdvertisements
-                product={item}
-                onNavigate={() =>
-                  navigatorStack.navigate('detailsMyAdvertisement', {
-                    id: item.id
-                  })
-                }
-              />
-            ) : (
-              <VStack flex={1}></VStack>
-            )
-          }
-          numColumns={2}
-          columnWrapperStyle={{
-            gap: 20,
-            paddingBottom: 24
-          }}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={() =>
-            myProducts.length === 0 || myProductsFiltered.length === 0 ? (
-              <Text
-                fontFamily="body"
-                fontSize="sm"
-                color="gray.100"
-                textAlign="center"
-              >
-                {myProducts.length === 0
-                  ? 'Você não possui nenhum anúncio cadastrado.'
-                  : 'Nenhum anúncio encontrado.'}
+        <>
+          {myProducts.length > 0 && (
+            <HStack
+              justifyContent="space-between"
+              alignItems="center"
+              paddingTop={8}
+              paddingBottom={5}
+            >
+              <Text>
+                {myTotProductsFiltered}{' '}
+                {myTotProductsFiltered === 1 ? 'anúncio' : 'anúncios'}
               </Text>
-            ) : (
-              <></>
-            )
-          }
-          contentContainerStyle={
-            (myProducts.length === 0 || myProductsFiltered.length === 0) && {
-              flex: 1,
-              justifyContent: 'center'
+
+              <Select
+                items={[
+                  { label: 'Todos', value: 'all' as FilterAdvertisementsProps },
+                  {
+                    label: 'Ativos',
+                    value: 'active' as FilterAdvertisementsProps
+                  },
+                  {
+                    label: 'Inativos',
+                    value: 'inactive' as FilterAdvertisementsProps
+                  }
+                ]}
+                selectProps={{
+                  selectedValue: filterAdvertisements,
+                  onValueChange: item =>
+                    setFilterAdvertisements(item as FilterAdvertisementsProps)
+                }}
+              />
+            </HStack>
+          )}
+
+          <FlatList
+            data={
+              myProductsFiltered && myProductsFiltered.length % 2
+                ? [...myProductsFiltered, {} as ProductDTO]
+                : myProductsFiltered
             }
-          }
-        />
+            keyExtractor={(item, index) =>
+              item.id ? item.id : index.toString()
+            }
+            renderItem={({ item }) =>
+              item.id ? (
+                <CardAdvertisements
+                  product={item}
+                  onNavigate={() =>
+                    navigatorStack.navigate('detailsMyAdvertisement', {
+                      id: item.id
+                    })
+                  }
+                />
+              ) : (
+                <VStack flex={1}></VStack>
+              )
+            }
+            numColumns={2}
+            columnWrapperStyle={{
+              gap: 20,
+              paddingBottom: 24
+            }}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={() => {
+              const isProductEmpty = myProducts.length === 0
+              const isProductFilteredEmpty = myProductsFiltered.length === 0
+
+              return isProductEmpty || isProductFilteredEmpty ? (
+                <Text
+                  fontFamily="body"
+                  fontSize="sm"
+                  color="gray.100"
+                  textAlign="center"
+                >
+                  {isProductEmpty
+                    ? 'Você não possui nenhum anúncio cadastrado.'
+                    : 'Nenhum anúncio encontrado no filtro.'}
+                </Text>
+              ) : (
+                <></>
+              )
+            }}
+            contentContainerStyle={
+              (myProducts.length === 0 || myProductsFiltered.length === 0) && {
+                flex: 1,
+                justifyContent: 'center'
+              }
+            }
+          />
+        </>
       )}
     </VStack>
   )
