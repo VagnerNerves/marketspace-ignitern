@@ -34,7 +34,7 @@ type ProductContextDataProps = {
   isLoadingGetProducts: boolean
 
   product: ProductDTO
-  getProduct: (id: string) => Promise<void>
+  getProduct: (id: string) => Promise<ProductDTO>
   updateProductForActiveOrInactive: (
     id: string,
     isActive: boolean
@@ -179,6 +179,8 @@ export function ProductContextProvider({
       }
 
       setProduct(productData)
+
+      return productData
     } catch (error) {
       throw error
     }
