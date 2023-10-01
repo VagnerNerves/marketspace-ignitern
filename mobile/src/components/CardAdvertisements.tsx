@@ -77,6 +77,7 @@ export function CardAdvertisements({
             fontFamily="body"
             fontSize="sm"
             color={product.is_active === true ? 'gray.200' : 'gray.400'}
+            numberOfLines={2}
           >
             {product.name}
           </Text>
