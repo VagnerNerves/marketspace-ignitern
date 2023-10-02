@@ -1,5 +1,5 @@
 <p align="center">
-  <!-- <img width="200px" alt="Project Title Logo" title="Project Title Logo" src="logo.svg" /> -->
+  <img width="200px" alt="Project Marketspace Logo" title="Project Marketspace Logo" src="./mobile/src/assets/logo.svg" />
   
   <h1 align="center">Project Marketspace</h1>
 
@@ -7,26 +7,27 @@
     🔗 <a href="https://URLThisProject.com">https://URLThisProject.com</a> 🔗
   </p>   -->
 
-  <!-- Write here what the project is about. -->
+Developed the Marketspace project in React Native, it is a marketplace application that allows users to log in, list items for sale, and search for products to buy.
 
-🚧 Project under construction 🚧
+One of the essential features of this application is the ability to contact the seller directly through WhatsApp to complete the purchase, streamlining communication between buyers and sellers.
+
+Users can also manage their listings, editing information as needed, such as details or prices, and disabling listings when products are sold. This keeps the platform up to date and free from unavailable listings.
 
 </p>
 
-<!-- ## 🧭 Table of contents
+## 🧭 Table of contents
 
-- [Implementation Video](#-implementation-video)
-- [Layout](#-layout)
-- [Learning and more Implementations](#-learning-and-more-implementations)
-- [Technologies Used](#-technologies-used)
-- [Folder Structure](#-folder-structure)
-- [Running the Project](#-running-the-project)
-  - [Back-end](#back-end)
-  - [Front-end Web](#front-end-web)
+- [🧭 Table of contents](#-table-of-contents)
+- [🎥 Implementation Video](#-implementation-video)
+- [🎨 Layout](#-layout)
+- [💡 Technologies Used](#-technologies-used)
   - [Mobile](#mobile)
-- [Routes](-routes)
-- [License](#-license)
-- [Author](#-author)
+- [📂 Folder Structure](#-folder-structure)
+- [🚀 Running the Project](#-running-the-project)
+  - [Back-end](#back-end)
+  - [Mobile](#mobile-1)
+- [🌎 License](#-license)
+- [✒ Author](#-author)
 
 ## 🎥 Implementation Video
 
@@ -34,55 +35,88 @@ In the GitHub edit, drag the video that it already puts on github itself.
 
 ## 🎨 Layout
 
-Layout developed by [Name](https://www.instagram.com/urlName/)
+Layout developed by [Millena Martins](https://www.linkedin.com/in/millenakmartins/)
 
-[![Layout in Figma](https://github.com/VagnerNerves/default-readme/blob/main/assets/layout-in-figma.svg)](https://www.figma.com/files)
+[![Layout in Figma](https://github.com/VagnerNerves/default-readme/blob/main/assets/layout-in-figma.svg)](https://www.figma.com/file/lgkr7KSuMWjHQfUqxoRphC/Marketspace-%E2%80%A2-Desafio-React-Native-Vagner-Nerves?type=design&node-id=1798%3A1823&mode=design&t=vou75Z8xqp9Qaely-1)
 
-## 👏 Learning and more Implementations
+<!-- ## 👏 Learning and more Implementations
 
-Describe what you learned and implemented in the project.
+Describe what you learned and implemented in the project. -->
 
 ## 💡 Technologies Used
 
-- [x] [Vite](https://vitejs.dev/)
+### Mobile
+
+- [x] [React Native](https://reactnative.dev/)
 - [x] [Expo](https://docs.expo.dev/)
-- [x] [React](https://reactjs.org/) ```version: "18.2.0"```
-- [x] [React Native](https://reactnative.dev/) ```version: "0.71.3"```
 - [x] [TypeScript](https://www.typescriptlang.org/)
-- [x] [Styled Components](https://styled-components.com/)
-- [x] Inform others used in the project
+- [x] [NativeBase](https://nativebase.io/)
+- [x] [React Navigation - Native Stack and Bottom Tabs](https://reactnavigation.org/)
+- [x] [Axios](https://axios-http.com/ptbr/)
+- [x] [Expo ImagePicker](https://docs.expo.dev/versions/latest/sdk/imagepicker/)
+- [x] [React Hook Form](https://react-hook-form.com/)
+- [x] [Yup](https://github.com/jquense/yup)
+- [x] [AsyncStorage](https://docs.expo.dev/versions/latest/sdk/async-storage/)
+- [x] [Phosphor Icons](https://phosphoricons.com/)
+- [x] [Modalize](https://github.com/jeremybarbet/react-native-modalize)
+- [x] [Portalize](https://github.com/jeremybarbet/react-native-portalize)
+- [x] [React Native Reanimated Carousel](https://github.com/dohooo/react-native-reanimated-carousel)
 
 ## 📂 Folder Structure
 
 ```plainText
-app
+mobile
 .
-├── __tests__
-├── android                     # Native android files
-├── ios                         # Native ios files
+├── assets                      # Images for expo
 ├── src                         # Source files
 │   ├── @types                  # Contains all global definitions of types and interfaces
 │   ├── assets                  # Contains Js bundles assets. e.g: icons, splash, images etc...
 │   ├── components              # Contains all global react components
-│   ├── context                 # All contexts
-│   ├── constants               # Constants files
-│   ├── hooks                   # Cstomized hooks
-│   ├── navigation
-│   ├── screens
-│   ├── services                # Contains external and api services
-│   ├── App                     # Aplication entry
+│   ├── contexts                # All contexts
+│   ├── dtos                    # Models Data Base
+│   ├── hooks                   # Application hooks
+│   ├── routes                  # Contains application routes
+│   ├── screens                 # Contains application screens
+│   ├── services                # Config service api
+│   ├── storage                 # Contains saving data in locations.
+│   ├── theme                   # Contains the theme of the application
+│   ├── utils                   # Class utils for system
 .
 .
-├── index                       # Bundle entry
+├── App                         # Bundle entry
 .
-.
-└── README.md
 ```
 
 ## 🚀 Running the Project
 
+Clone the project
+
+```bash
+  git clone https://github.com/VagnerNerves/marketspace-ignitern.git
+```
+
 ### Back-end
 
+Enter the project directory
+
+```bash
+  cd marketspace-ignitern/server
+```
+
+Install with dependencies
+
+```bash
+  npm install
+```
+
+Start the server
+
+```bash
+  npm run dev
+```
+
+<!-- ### Front-end Web
+
 Clone the project
 
 ```bash
@@ -105,46 +139,14 @@ Start the server
 
 ```bash
   npm run start
-```
-
-### Front-end Web
-
-Clone the project
-
-```bash
-  git clone https://link-para-o-projeto
-```
-
-Enter the project directory
-
-```bash
-  cd my-project
-```
-
-Install with dependencies
-
-```bash
-  npm install
-```
-
-Start the server
-
-```bash
-  npm run start
-```
+``` -->
 
 ### Mobile
 
-Clone the project
-
-```bash
-  git clone https://link-para-o-projeto
-```
-
 Enter the project directory
 
 ```bash
-  cd my-project
+  cd marketspace-ignitern/mobile
 ```
 
 Install with dependencies
@@ -153,30 +155,22 @@ Install with dependencies
   npm install
 ```
 
+Check in the file "src/services/api.ts" to insert your IP address.
+
 Start the server
 
 ```bash
-  npx expo start
+  npm run start
 ```
 
-- IOS:
-```bash
-  npx pod-install && npx react-native run-ios
-```
-
-- Android:
-```bash
-  npx react-native run-android
-```
-
-## 📝 Routes
+<!-- ## 📝 Routes
 
 [![Run in Postman](https://github.com/VagnerNerves/default-readme/blob/main/assets/run-in-postman.svg)](https://app.getpostman.com/run-collection/link)
-[![Run in Insomnia](https://github.com/VagnerNerves/default-readme/blob/main/assets/run-in-insomnia.svg)](https://insomnia.rest/run/?label=NAMEPROJECT&uri=LINK)
+[![Run in Insomnia](https://github.com/VagnerNerves/default-readme/blob/main/assets/run-in-insomnia.svg)](https://insomnia.rest/run/?label=NAMEPROJECT&uri=LINK) -->
 
 ## 🌎 License
 
-This project is under the MIT license. See the [LICENSE](https://choosealicense.com/licenses/mit/) file for more details. -->
+This project is under the MIT license. See the [LICENSE](https://github.com/VagnerNerves/marketspace-ignitern/blob/main/LICENSE) file for more details.
 
 ## ✒ Author
 
