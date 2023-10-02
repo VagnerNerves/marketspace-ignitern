@@ -31,7 +31,7 @@ Users can also manage their listings, editing information as needed, such as det
 
 ## 🎥 Implementation Video
 
-In the GitHub edit, drag the video that it already puts on github itself.
+https://github.com/VagnerNerves/marketspace-ignitern/assets/40831841/1340dd49-3d05-4e53-8b78-271c4814f901
 
 ## 🎨 Layout
 
