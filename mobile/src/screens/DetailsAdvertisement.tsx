@@ -48,11 +48,11 @@ export function DetailsAdvertisement() {
     }
   }
 
-  useEffect(() => {
+  async function fetchProduct() {
     try {
       setIsLoadingGetProduct(true)
 
-      getProduct(id)
+      await getProduct(id)
     } catch (error) {
       const isAppError = error instanceof AppError
       const messageError = isAppError
@@ -69,6 +69,10 @@ export function DetailsAdvertisement() {
     } finally {
       setIsLoadingGetProduct(false)
     }
+  }
+
+  useEffect(() => {
+    fetchProduct()
   }, [])
 
   return (
