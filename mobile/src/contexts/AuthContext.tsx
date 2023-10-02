@@ -104,6 +104,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     loadUserData()
   }, [])
 
+  useEffect(() => {
+    const subscribe = api.registerInterceptorTokenManager(singOut)
+
+    return () => {
+      subscribe()
+    }
+  }, [singOut])
+
   return (
     <AuthContext.Provider
       value={{
