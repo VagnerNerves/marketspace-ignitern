@@ -58,8 +58,8 @@ Describe what you learned and implemented in the project. -->
 - [x] [Yup](https://github.com/jquense/yup)
 - [x] [AsyncStorage](https://docs.expo.dev/versions/latest/sdk/async-storage/)
 - [x] [Phosphor Icons](https://phosphoricons.com/)
-- [x] [Modalize](https://github.com/jeremybarbet/react-native-modalize)
-- [x] [Portalize](https://github.com/jeremybarbet/react-native-portalize)
+- [x] [React Native Modalize](https://github.com/jeremybarbet/react-native-modalize)
+- [x] [React Native Portalize](https://github.com/jeremybarbet/react-native-portalize)
 - [x] [React Native Reanimated Carousel](https://github.com/dohooo/react-native-reanimated-carousel)
 
 ## 📂 Folder Structure
